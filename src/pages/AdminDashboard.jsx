@@ -13,14 +13,14 @@ function AdminDashboard() {
   
   const navigate = useNavigate();
 
-  // Admin authentication check
-  const ADMIN_EMAIL = "sahrabashir228@gmail.com"; // Apni asli admin email
+  // Admin authentication check (Case-insensitive fix included)
+  const ADMIN_EMAIL = "sahrabashir228@gmail.com";
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (!user) {
         navigate('/auth');
-      } else if (user.email !== ADMIN_EMAIL) {
+      } else if (user.email?.toLowerCase() !== ADMIN_EMAIL.toLowerCase()) {
         alert('Access Denied! You are not authorized to view the Admin Panel.');
         navigate('/');
       } else {

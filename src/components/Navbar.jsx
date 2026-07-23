@@ -14,7 +14,7 @@ function Navbar() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Admin email check
+  // Admin email check (Case-insensitive)
   const ADMIN_EMAIL = "sahrabashir228@gmail.com";
 
   useEffect(() => {
@@ -32,7 +32,7 @@ function Navbar() {
     };
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
+  }, [], );
 
   // Close mobile menu when route changes
   useEffect(() => {
@@ -142,8 +142,8 @@ function Navbar() {
                       <strong className="text-emerald-900 font-semibold">{user.email}</strong>
                     </div>
 
-                    {/* Admin Dashboard Link only for Admin */}
-                    {user.email === ADMIN_EMAIL && (
+                    {/* Admin Dashboard Link with case-insensitive check */}
+                    {user.email?.toLowerCase() === ADMIN_EMAIL.toLowerCase() && (
                       <Link 
                         to="/admin-dashboard" 
                         onClick={() => setDropdownOpen(false)}
