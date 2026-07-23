@@ -145,7 +145,7 @@ function Navbar() {
                     {/* Admin Dashboard Link with case-insensitive check */}
                     {user.email?.toLowerCase() === ADMIN_EMAIL.toLowerCase() && (
                       <Link 
-                        to="/admin-dashboard" 
+                        to="/admin" 
                         onClick={() => setDropdownOpen(false)}
                         className="block px-4 py-3 text-sm hover:bg-emerald-50 text-emerald-900 font-bold transition flex items-center gap-2 border-b border-gray-100"
                       >
