@@ -5,7 +5,7 @@ import { auth } from '../firebase';
 import { onAuthStateChanged, signOut } from 'firebase/auth';
 
 function Navbar() {
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   const [searchQuery, setSearchQuery] = useState('');
   const [user, setUser] = useState(null);
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -13,6 +13,9 @@ function Navbar() {
   const dropdownRef = useRef(null);
   const navigate = useNavigate();
   const location = useLocation();
+
+  // Admin email check
+  const ADMIN_EMAIL = "sahrabashir228@gmail.com";
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
@@ -35,10 +38,6 @@ function Navbar() {
   useEffect(() => {
     setMobileMenuOpen(false);
   }, [location.pathname]);
-
-  const handleLanguageChange = (e) => {
-    i18n.changeLanguage(e.target.value);
-  };
 
   const handleSearchSubmit = (e) => {
     e.preventDefault();
@@ -118,11 +117,9 @@ function Navbar() {
           </Link>
         </div>
 
-        {/* Right Controls (Language & Account & Mobile Toggle) */}
+        {/* Right Controls (Account & Mobile Toggle) */}
         <div className="flex items-center gap-2">
           
-          
-
           {/* Account Dropdown */}
           <div className="relative" ref={dropdownRef}>
             <button 
@@ -144,6 +141,18 @@ function Navbar() {
                       Signed in as <br />
                       <strong className="text-emerald-900 font-semibold">{user.email}</strong>
                     </div>
+
+                    {/* Admin Dashboard Link only for Admin */}
+                    {user.email === ADMIN_EMAIL && (
+                      <Link 
+                        to="/admin-dashboard" 
+                        onClick={() => setDropdownOpen(false)}
+                        className="block px-4 py-3 text-sm hover:bg-emerald-50 text-emerald-900 font-bold transition flex items-center gap-2 border-b border-gray-100"
+                      >
+                        <span>⚙️</span> Admin Dashboard
+                      </Link>
+                    )}
+
                     <button 
                       onClick={handleLogout}
                       className="w-full text-left px-4 py-3 text-sm text-red-600 hover:bg-red-50 font-semibold transition flex items-center gap-2.5"

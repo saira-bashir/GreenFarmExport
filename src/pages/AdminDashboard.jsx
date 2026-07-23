@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { collection, getDocs, doc, updateDoc } from 'firebase/firestore';
 import { db, auth } from '../firebase';
 import { onAuthStateChanged } from 'firebase/auth';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 function AdminDashboard() {
   const [activeTab, setActiveTab] = useState('inquiries'); // 'inquiries' ya 'orders'
@@ -13,16 +13,14 @@ function AdminDashboard() {
   
   const navigate = useNavigate();
 
-  // Admin authentication check (Yahan apni authentic admin email set karein)
-  const ADMIN_EMAIL = "sahrabashir228@gmail.com"; // Apni asli admin email yahan likh lein
+  // Admin authentication check
+  const ADMIN_EMAIL = "sahrabashir228@gmail.com"; // Apni asli admin email
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (!user) {
-        // Agar user login nahi hai toh auth page par bhej dein
         navigate('/auth');
       } else if (user.email !== ADMIN_EMAIL) {
-        // Agar user login hai lekin woh admin nahi hai toh error de kar home page par bhej dein
         alert('Access Denied! You are not authorized to view the Admin Panel.');
         navigate('/');
       } else {
@@ -81,9 +79,6 @@ function AdminDashboard() {
       <div className="max-w-6xl mx-auto">
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-4xl font-bold text-green-800">Admin Management Dashboard</h2>
-          <Link to="/" className="bg-gray-800 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-gray-900 transition">
-            ← Back to Website
-          </Link>
         </div>
         
         {/* Navigation Tabs */}
