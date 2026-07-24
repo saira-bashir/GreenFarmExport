@@ -68,6 +68,8 @@ function ProductDetails() {
     ? product.extraImages 
     : [product.img, product.img, product.img, product.img];
 
+  const isOutOfSeason = product.seasonStatus === 'Out of Season';
+
   return (
     <div className="p-6 md:p-12 bg-gradient-to-b from-gray-50 to-emerald-50/30 min-h-screen flex items-center">
       <div className="max-w-6xl mx-auto w-full">
@@ -79,7 +81,19 @@ function ProductDetails() {
           {/* LEFT SIDE: Images Gallery with Smooth Switching */}
           <div className="space-y-4">
             {/* Main Preview Image with Fixed Frame */}
-            <div className="h-96 w-full flex items-center justify-center overflow-hidden rounded-2xl bg-gradient-to-b from-emerald-50/50 to-amber-50/30 p-6 border border-emerald-100 shadow-inner group">
+            <div className="h-96 w-full flex items-center justify-center overflow-hidden rounded-2xl bg-gradient-to-b from-emerald-50/50 to-amber-50/30 p-6 border border-emerald-100 shadow-inner group relative">
+              
+              {/* Season Status Badge on Image */}
+              <div className="absolute top-4 left-4 z-10">
+                <span className={`px-3 py-1.5 rounded-full text-xs font-extrabold shadow-md ${
+                  isOutOfSeason 
+                    ? 'bg-red-100 text-red-700 border border-red-300' 
+                    : 'bg-emerald-100 text-emerald-700 border border-emerald-300'
+                }`}>
+                  {product.seasonStatus || 'In Season'}
+                </span>
+              </div>
+
               <img 
                 src={activeImage || product.img} 
                 alt={product.name} 
@@ -126,20 +140,37 @@ function ProductDetails() {
               </div>
             </div>
 
+            {/* Out of Season Warning Notification */}
+            {isOutOfSeason && (
+              <div className="p-4 bg-red-50 border border-red-200 rounded-2xl text-red-700 text-xs font-semibold flex items-center gap-2">
+                <span>⚠️</span>
+                <span>This item is currently <strong>Out of Season / Sold Out</strong>. Direct orders and quotes are temporarily paused.</span>
+              </div>
+            )}
+
             {/* Action Buttons with Gradients & Neon Shadows */}
             <div className="space-y-3.5 pt-4 border-t border-gray-100">
-              <Link
-                to={`/quote/${id}`}
-                className="block w-full bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-emerald-950 font-bold py-3.5 rounded-xl transition shadow-md hover:shadow-amber-500/30 hover:shadow-lg text-center text-base"
-              >
-                Request Official Quote 📋
-              </Link>
-              <Link
-                to={`/order/${id}`}
-                className="block w-full bg-gradient-to-r from-emerald-700 to-emerald-900 hover:from-emerald-800 hover:to-emerald-950 text-white font-bold py-3.5 rounded-xl transition shadow-md hover:shadow-emerald-900/30 hover:shadow-lg text-center text-base"
-              >
-                Place Direct Order 🚀
-              </Link>
+              {isOutOfSeason ? (
+                <div className="w-full bg-gray-200 text-gray-500 font-bold py-3.5 rounded-xl text-center text-base cursor-not-allowed">
+                  Currently Unavailable (Out of Season)
+                </div>
+              ) : (
+                <>
+                  <Link
+                    to={`/quote/${id}`}
+                    className="block w-full bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-emerald-950 font-bold py-3.5 rounded-xl transition shadow-md hover:shadow-amber-500/30 hover:shadow-lg text-center text-base"
+                  >
+                    Request Official Quote 📋
+                  </Link>
+                  <Link
+                    to={`/order/${id}`}
+                    className="block w-full bg-gradient-to-r from-emerald-700 to-emerald-900 hover:from-emerald-800 hover:to-emerald-950 text-white font-bold py-3.5 rounded-xl transition shadow-md hover:shadow-emerald-900/30 hover:shadow-lg text-center text-base"
+                  >
+                    Place Direct Order 🚀
+                  </Link>
+                </>
+              )}
+              
               <Link
                 to="/products"
                 className="block w-full bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-3 rounded-xl transition text-center text-sm shadow-sm"

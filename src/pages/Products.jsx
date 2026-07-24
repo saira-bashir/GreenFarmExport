@@ -21,7 +21,8 @@ function Products() {
       packing: "5kg Box", 
       desc: "Best quality Chaunsa mangoes in wooden boxes, graded for international export.",
       img: "/Mango.png",
-      extraImages: ["/Mango.png", "/mangopack.png", "/mangobox.png", "/mangoes.png"] 
+      extraImages: ["/Mango.png", "/mangopack.png", "/mangobox.png", "/mangoes.png"],
+      seasonStatus: "In Season"
     },
     { 
       id: "2", 
@@ -30,7 +31,8 @@ function Products() {
       packing: "10kg Box", 
       desc: "Fresh Kinnow/Malta from Punjab orchards, rich in juice and vitamins.",
       img: "/Orangegarden.png",
-      extraImages: ["/Orangegarden.png", "/orange.png", "/packmalta.png", "/boxorange.png"] 
+      extraImages: ["/Orangegarden.png", "/orange.png", "/packmalta.png", "/boxorange.png"],
+      seasonStatus: "In Season"
     },
     { 
       id: "3", 
@@ -39,7 +41,8 @@ function Products() {
       packing: "2.5kg Box", 
       desc: "Handpicked premium cherries packed securely for long-distance transport.",
       img: "/cherrybox.png",
-      extraImages: ["/cherrybox.png", "/cherries.png", "/cherrish.png", "/cherrypacks.png"] 
+      extraImages: ["/cherrybox.png", "/cherries.png", "/cherrish.png", "/cherrypacks.png"],
+      seasonStatus: "In Season"
     },
     { 
       id: "4", 
@@ -48,7 +51,8 @@ function Products() {
       packing: "20kg Bag", 
       desc: "Cleaned and sorted potatoes suited for bulk storage and commercial use.",
       img: "/potatoo.png",
-      extraImages: ["/potatoo.png", "/potato.png", "/sack.png", "/sacks.png"] 
+      extraImages: ["/potatoo.png", "/potato.png", "/sack.png", "/sacks.png"],
+      seasonStatus: "In Season"
     },
   ];
 
@@ -125,6 +129,17 @@ function Products() {
               >
                 {/* Top Subtle Neon Accent Bar */}
                 <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-amber-500 via-emerald-500 to-emerald-700 opacity-80 group-hover:opacity-150 transition"></div>
+
+                {/* Season Status Badge */}
+                <div className="absolute top-4 right-4 z-10">
+                  <span className={`px-2.5 py-1 rounded-full text-[10px] font-extrabold shadow-sm ${
+                    product.seasonStatus === 'Out of Season' 
+                      ? 'bg-red-100 text-red-700 border border-red-200' 
+                      : 'bg-emerald-100 text-emerald-700 border border-emerald-200'
+                  }`}>
+                    {product.seasonStatus || 'In Season'}
+                  </span>
+                </div>
 
                 <div>
                   <div className="mb-5 h-48 w-full flex items-center justify-center overflow-hidden rounded-2xl bg-gradient-to-b from-emerald-50/50 to-amber-50/30 p-4 group-hover:scale-105 transition duration-500">

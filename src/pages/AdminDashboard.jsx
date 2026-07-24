@@ -5,9 +5,10 @@ import { onAuthStateChanged } from 'firebase/auth';
 import { useNavigate } from 'react-router-dom';
 
 function AdminDashboard() {
-  const [activeTab, setActiveTab] = useState('inquiries'); // 'inquiries' ya 'orders'
+  const [activeTab, setActiveTab] = useState('inquiries'); // 'inquiries', 'orders', ya 'products'
   const [inquiries, setInquiries] = useState([]);
   const [orders, setOrders] = useState([]);
+  const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
   
@@ -32,7 +33,7 @@ function AdminDashboard() {
     return () => unsubscribe();
   }, [navigate]);
 
-  // Firebase se Inquiries aur Orders fetch karna
+  // Firebase se Inquiries, Orders aur Products fetch karna
   const fetchAdminData = async () => {
     setLoading(true);
     try {
@@ -41,6 +42,9 @@ function AdminDashboard() {
 
       const ordSnapshot = await getDocs(collection(db, 'orders'));
       setOrders(ordSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+
+      const prodSnapshot = await getDocs(collection(db, 'products'));
+      setProducts(prodSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
     } catch (error) {
       console.error("Error fetching admin data: ", error);
     } finally {
@@ -70,6 +74,17 @@ function AdminDashboard() {
     }
   };
 
+  // Status/Season Update for Products
+  const handleProductStatusChange = async (id, newSeasonStatus) => {
+    try {
+      const ref = doc(db, 'products', id);
+      await updateDoc(ref, { seasonStatus: newSeasonStatus });
+      setProducts(products.map(item => item.id === id ? { ...item, seasonStatus: newSeasonStatus } : item));
+    } catch (error) {
+      console.error("Error updating product season status: ", error);
+    }
+  };
+
   if (!isAdmin) {
     return <div className="text-center py-20 font-bold text-gray-600">Verifying Admin Access...</div>;
   }
@@ -82,18 +97,24 @@ function AdminDashboard() {
         </div>
         
         {/* Navigation Tabs */}
-        <div className="flex gap-4 mb-6">
+        <div className="flex flex-wrap gap-4 mb-6">
           <button 
             onClick={() => setActiveTab('inquiries')}
             className={`px-6 py-2.5 rounded-lg font-bold transition ${activeTab === 'inquiries' ? 'bg-green-700 text-white' : 'bg-white text-gray-700 border'}`}
           >
-            Quote Inquiries & Messages ({inquiries.length})
+            Quote Inquiries ({inquiries.length})
           </button>
           <button 
             onClick={() => setActiveTab('orders')}
             className={`px-6 py-2.5 rounded-lg font-bold transition ${activeTab === 'orders' ? 'bg-green-700 text-white' : 'bg-white text-gray-700 border'}`}
           >
-            Confirmed Export Orders ({orders.length})
+            Export Orders ({orders.length})
+          </button>
+          <button 
+            onClick={() => setActiveTab('products')}
+            className={`px-6 py-2.5 rounded-lg font-bold transition ${activeTab === 'products' ? 'bg-green-700 text-white' : 'bg-white text-gray-700 border'}`}
+          >
+            Products Season Control ({products.length})
           </button>
         </div>
 
@@ -212,6 +233,55 @@ function AdminDashboard() {
                               <option value="Pending">Pending</option>
                               <option value="Processing">Processing</option>
                               <option value="Delivered">Delivered</option>
+                            </select>
+                          </td>
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            )}
+
+            {/* TAB 3: PRODUCTS SEASON STATUS CONTROL */}
+            {activeTab === 'products' && (
+              <div className="bg-white p-6 rounded-xl shadow-md border overflow-x-auto">
+                <h3 className="text-xl font-bold mb-4 text-green-800">Seasonal Availability Control</h3>
+                <p className="text-xs text-gray-500 mb-4">Manage whether a product is currently in season or sold out/out of season.</p>
+                <table className="w-full text-left border-collapse">
+                  <thead>
+                    <tr className="bg-green-700 text-white text-sm">
+                      <th className="p-3">Product Name</th>
+                      <th className="p-3">Category</th>
+                      <th className="p-3">Current Season Status</th>
+                      <th className="p-3">Action / Change Status</th>
+                    </tr>
+                  </thead>
+                  <tbody className="text-sm">
+                    {products.length === 0 ? (
+                      <tr>
+                        <td colSpan="4" className="text-center py-6 text-gray-500">No products found in Firestore.</td>
+                      </tr>
+                    ) : (
+                      products.map((prod) => (
+                        <tr key={prod.id} className="border-b hover:bg-gray-50">
+                          <td className="p-3 font-bold text-green-900">{prod.name || prod.title}</td>
+                          <td className="p-3 text-gray-600">{prod.category || 'Fruit / Vegetable'}</td>
+                          <td className="p-3">
+                            <span className={`px-2.5 py-1 rounded-full text-xs font-bold ${
+                              prod.seasonStatus === 'Out of Season' ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'
+                            }`}>
+                              {prod.seasonStatus || 'In Season'}
+                            </span>
+                          </td>
+                          <td className="p-3">
+                            <select 
+                              value={prod.seasonStatus || 'In Season'}
+                              onChange={(e) => handleProductStatusChange(prod.id, e.target.value)}
+                              className="p-1.5 border rounded text-xs bg-white font-medium"
+                            >
+                              <option value="In Season">In Season (Available)</option>
+                              <option value="Out of Season">Out of Season / Sold Out</option>
                             </select>
                           </td>
                         </tr>

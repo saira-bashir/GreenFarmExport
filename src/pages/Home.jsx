@@ -92,8 +92,72 @@ function Home() {
         </div>
       </section>
 
-      {/* Local Sourcing & Commission Hub Section (New Card for pic.png) */}
-      <section className="py-16 bg-gradient-to-b from-emerald-50/40 to-white">
+      {/* Stats & Achievements Section (Updated with exact ISO card styling & top accent bars) */}
+      <section className="py-16 bg-gradient-to-b from-emerald-50/40 to-white relative overflow-hidden">
+        <div className="container mx-auto px-4 relative z-10">
+          <div className="text-center max-w-2xl mx-auto mb-12">
+            <span className="text-emerald-700 font-bold uppercase tracking-wider text-xs bg-emerald-100 px-3 py-1 rounded-full border border-emerald-200">
+              Our Track Record
+            </span>
+            <h2 className="text-3xl sm:text-4xl font-extrabold mt-3 text-emerald-950 tracking-wide">
+              Trusted Global Export Excellence
+            </h2>
+            <p className="text-gray-500 text-sm mt-2">
+              Delivering premium farm-fresh agricultural products with absolute reliability across Pakistan and worldwide.
+            </p>
+          </div>
+
+          {/* Cards Grid (Matching upper ISO cards style perfectly) */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto">
+            
+            {/* Card 1: Experience */}
+            <div className="bg-white border border-emerald-100 p-6 rounded-3xl shadow-md hover:shadow-xl hover:-translate-y-1 transition duration-300 group relative overflow-hidden text-center">
+              <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-emerald-500 to-emerald-700"></div>
+              <div className="text-4xl sm:text-5xl font-black text-emerald-700 mb-2 group-hover:scale-105 transition mt-2">
+                6+
+              </div>
+              <div className="text-xs sm:text-sm font-bold tracking-widest text-emerald-950 uppercase mb-1">
+                Years Experience
+              </div>
+              <p className="text-gray-500 text-xs leading-relaxed">
+                Expertise in agricultural supply chain and international trade.
+              </p>
+            </div>
+
+            {/* Card 2: Completed Orders */}
+            <div className="bg-white border border-emerald-100 p-6 rounded-3xl shadow-md hover:shadow-xl hover:-translate-y-1 transition duration-300 group relative overflow-hidden text-center">
+              <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-amber-400 to-amber-600"></div>
+              <div className="text-4xl sm:text-5xl font-black text-amber-600 mb-2 group-hover:scale-105 transition mt-2">
+                1000+
+              </div>
+              <div className="text-xs sm:text-sm font-bold tracking-widest text-emerald-950 uppercase mb-1">
+                Completed Orders
+              </div>
+              <p className="text-gray-500 text-xs leading-relaxed">
+                Successfully delivered across Pakistan & around the world.
+              </p>
+            </div>
+
+            {/* Card 3: Quality Compliance */}
+            <div className="bg-white border border-emerald-100 p-6 rounded-3xl shadow-md hover:shadow-xl hover:-translate-y-1 transition duration-300 group relative overflow-hidden text-center">
+              <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-emerald-600 to-amber-500"></div>
+              <div className="text-4xl sm:text-5xl font-black text-emerald-700 mb-2 group-hover:scale-105 transition mt-2">
+                100%
+              </div>
+              <div className="text-xs sm:text-sm font-bold tracking-widest text-emerald-950 uppercase mb-1">
+                Quality Compliance
+              </div>
+              <p className="text-gray-500 text-xs leading-relaxed">
+                Strict cold-chain logistics and certified export standards.
+              </p>
+            </div>
+
+          </div>
+        </div>
+      </section>
+
+      {/* Local Sourcing & Commission Hub Section */}
+      <section className="py-16 bg-gradient-to-b from-white to-emerald-50/40">
         <div className="max-w-5xl mx-auto px-4">
           <div className="bg-white border border-emerald-100 p-6 md:p-10 rounded-3xl shadow-xl relative overflow-hidden group">
             
