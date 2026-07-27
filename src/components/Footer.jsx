@@ -105,7 +105,7 @@ function Footer() {
             {t('footerContact', 'Head Office & Sourcing')}
           </h3>
           <p className="text-emerald-100/80 text-sm flex items-center gap-2.5">
-            <FaEnvelope className="text-amber-400 shrink-0" /> Email: <strong className="text-white">info@greenfarmexport.com</strong>
+            <FaEnvelope className="text-amber-400 shrink-0" /> Email: <strong className="text-white">greenfarmexport0@gmail.com</strong>
           </p>
           <p className="text-emerald-100/80 text-sm flex items-center gap-2.5">
             <FaPhone className="text-amber-400 shrink-0" /> Phone 1: <strong className="text-white">+92 302-8882499</strong> (Ahmad Ch)
