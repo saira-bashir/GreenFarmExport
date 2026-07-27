@@ -14,8 +14,8 @@ function Navbar() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Admin email check (Case-insensitive)
-  const ADMIN_EMAIL = "sahrabashir228@gmail.com";
+  // Multiple Admin Emails Check
+  const ADMIN_EMAILS = ["sahrabashir228@gmail.com", "greenfarmexport0@gmail.com"];
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
@@ -32,7 +32,7 @@ function Navbar() {
     };
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, [], );
+  }, []);
 
   // Close mobile menu when route changes
   useEffect(() => {
@@ -65,6 +65,9 @@ function Navbar() {
   };
 
   const isActive = (path) => location.pathname === path;
+
+  // Check if current user is an admin
+  const isUserAdmin = user?.email && ADMIN_EMAILS.map(e => e.toLowerCase()).includes(user.email.toLowerCase());
 
   return (
     <nav className="bg-gradient-to-r from-emerald-950 via-emerald-900 to-emerald-950 px-4 py-3 text-white shadow-2xl sticky top-0 z-50 border-b border-emerald-800/80 backdrop-blur-md">
@@ -142,8 +145,8 @@ function Navbar() {
                       <strong className="text-emerald-900 font-semibold">{user.email}</strong>
                     </div>
 
-                    {/* Admin Dashboard Link with case-insensitive check */}
-                    {user.email?.toLowerCase() === ADMIN_EMAIL.toLowerCase() && (
+                    {/* Admin Dashboard Link for authorized admins */}
+                    {isUserAdmin && (
                       <Link 
                         to="/admin" 
                         onClick={() => setDropdownOpen(false)}
@@ -219,6 +222,13 @@ function Navbar() {
           <Link to="/my-orders" className={`px-4 py-2.5 rounded-xl font-medium transition ${isActive('/my-orders') ? 'bg-emerald-800 text-amber-300' : 'hover:bg-emerald-900/60 text-gray-200'}`}>
             My Orders
           </Link>
+
+          {/* Admin Dashboard link in mobile menu if admin */}
+          {isUserAdmin && (
+            <Link to="/admin" className={`px-4 py-2.5 rounded-xl font-bold transition flex items-center gap-2 ${isActive('/admin') ? 'bg-emerald-800 text-amber-300' : 'text-amber-400 hover:bg-emerald-900/60'}`}>
+              <span>⚙️</span> Admin Dashboard
+            </Link>
+          )}
         </div>
       )}
     </nav>

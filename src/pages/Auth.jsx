@@ -17,7 +17,8 @@ function Auth() {
   const [errorMsg, setErrorMsg] = useState('');
   const navigate = useNavigate();
 
-  const ADMIN_EMAIL = 'sahrabashir228@gmail.com';
+  // Multiple Admin Emails allowed
+  const ADMIN_EMAILS = ['sahrabashir228@gmail.com', 'greenfarmexport0@gmail.com'];
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -30,16 +31,17 @@ function Auth() {
         const user = userCredential.user;
 
         const enteredEmail = formData.email.trim().toLowerCase();
+        const isAdmin = ADMIN_EMAILS.map(e => e.toLowerCase()).includes(enteredEmail);
 
         if (formData.isAdminLogin) {
-          if (enteredEmail === ADMIN_EMAIL) {
+          if (isAdmin) {
             alert('Welcome Admin!');
             navigate('/admin');
           } else {
             setErrorMsg('Access Denied: This email does not have administrator privileges.');
           }
         } else {
-          if (enteredEmail === ADMIN_EMAIL) {
+          if (isAdmin) {
             alert('Welcome Admin! Redirecting to dashboard...');
             navigate('/admin');
           } else {
@@ -58,7 +60,7 @@ function Auth() {
         });
 
         const enteredEmail = formData.email.trim().toLowerCase();
-        const role = enteredEmail === ADMIN_EMAIL ? 'admin' : 'buyer';
+        const role = ADMIN_EMAILS.map(e => e.toLowerCase()).includes(enteredEmail) ? 'admin' : 'buyer';
 
         // Firestore mein user data save karna
         await setDoc(doc(db, 'users', user.uid), {
