@@ -33,7 +33,7 @@ function Footer() {
             <div className="flex items-center gap-3">
               {/* Facebook Link */}
               <a 
-                href="https://facebook.com/your-facebook-page" 
+                href="https://www.facebook.com/profile.php?id=61591954553938" 
                 target="_blank" 
                 rel="noopener noreferrer"
                 className="w-10 h-10 rounded-xl bg-emerald-900/80 border border-emerald-700/60 flex items-center justify-center text-white hover:bg-amber-500 hover:text-emerald-950 hover:border-amber-400 transition duration-300 shadow-md"
@@ -43,7 +43,7 @@ function Footer() {
               </a>
               {/* TikTok Link */}
               <a 
-                href="https://tiktok.com/@your-tiktok-id" 
+                href="https://www.tiktok.com/@green.farm.export?_r=1&_t=ZS-98IlmX2QHbg" 
                 target="_blank" 
                 rel="noopener noreferrer"
                 className="w-10 h-10 rounded-xl bg-emerald-900/80 border border-emerald-700/60 flex items-center justify-center text-white hover:bg-amber-500 hover:text-emerald-950 hover:border-amber-400 transition duration-300 shadow-md"

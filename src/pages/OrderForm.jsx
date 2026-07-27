@@ -1,55 +1,143 @@
-import { useState } from 'react';
-import { useParams, useNavigate, Link } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useParams, useNavigate, Link, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import { collection, addDoc, serverTimestamp, doc, getDoc } from 'firebase/firestore';
 import { db } from '../firebase';
 
 function OrderForm() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { t } = useTranslation();
+  const location = useLocation();
 
-  const productsData = {
-    1: { name: "Premium Mango", grade: "A-Grade", packing: "5kg Box", img: "/Mango.png" },
-    2: { name: "Juicy Malta", grade: "A-Grade", packing: "10kg Box", img: "/orange.png" },
-    3: { name: "Fresh Cherry", grade: "Premium", packing: "2kg Box", img: "/cherry.jpg" },
-    4: { name: "Export Potato", grade: "Class-1", packing: "20kg Bag", img: "/potatoo.png" }
-  };
+  const queryParams = new URLSearchParams(location.search);
+  const selectedPackingParam = queryParams.get('packing') || '';
 
-  const product = productsData[Number(id)];
+  const [product, setProduct] = useState(null);
+  const [loadingProduct, setLoadingProduct] = useState(true);
 
   const [formData, setFormData] = useState({
     name: '',
     email: '',
+    countryCode: '+92',
+    phone: '',
     quantity: '',
     destination: '',
     shippingAddress: '',
+    packing: '',
     paymentMethod: 'Bank Transfer (T.T)'
   });
 
   const [loading, setLoading] = useState(false);
+
+  // Complete World Country Calling Codes list
+  const countryCodes = [
+    { name: "Afghanistan", code: "+93", flag: "🇦🇫" },
+    { name: "Albania", code: "+355", flag: "🇦🇱" },
+    { name: "Algeria", code: "+213", flag: "🇩🇿" },
+    { name: "Argentina", code: "+54", flag: "🇦🇷" },
+    { name: "Australia", code: "+61", flag: "🇦🇺" },
+    { name: "Austria", code: "+43", flag: "🇦🇹" },
+    { name: "Bahrain", code: "+973", flag: "🇧🇭" },
+    { name: "Bangladesh", code: "+880", flag: "🇧🇩" },
+    { name: "Belgium", code: "+32", flag: "🇧🇪" },
+    { name: "Brazil", code: "+55", flag: "🇧🇷" },
+    { name: "Canada", code: "+1", flag: "🇨🇦" },
+    { name: "China", code: "+86", flag: "🇨🇳" },
+    { name: "Denmark", code: "+45", flag: "🇩🇰" },
+    { name: "Egypt", code: "+20", flag: "🇪🇬" },
+    { name: "France", code: "+33", flag: "🇫🇷" },
+    { name: "Germany", code: "+49", flag: "🇩🇪" },
+    { name: "India", code: "+91", flag: "🇮🇳" },
+    { name: "Indonesia", code: "+62", flag: "🇮🇩" },
+    { name: "Iran", code: "+98", flag: "🇮🇷" },
+    { name: "Iraq", code: "+964", flag: "🇮🇶" },
+    { name: "Ireland", code: "+353", flag: "🇮🇪" },
+    { name: "Italy", code: "+39", flag: "🇮🇹" },
+    { name: "Japan", code: "+81", flag: "🇯🇵" },
+    { name: "Jordan", code: "+962", flag: "🇯🇴" },
+    { name: "Kuwait", code: "+965", flag: "🇰🇼" },
+    { name: "Malaysia", code: "+60", flag: "🇲🇾" },
+    { name: "Netherlands", code: "+31", flag: "🇳🇱" },
+    { name: "New Zealand", code: "+64", flag: "🇳🇿" },
+    { name: "Norway", code: "+47", flag: "🇳🇴" },
+    { name: "Oman", code: "+968", flag: "🇴🇲" },
+    { name: "Pakistan", code: "+92", flag: "🇵🇰" },
+    { name: "Philippines", code: "+63", flag: "🇵🇭" },
+    { name: "Poland", code: "+48", flag: "🇵🇱" },
+    { name: "Portugal", code: "+351", flag: "🇵🇹" },
+    { name: "Qatar", code: "+974", flag: "🇶🇦" },
+    { name: "Russia", code: "+7", flag: "🇷🇺" },
+    { name: "Saudi Arabia", code: "+966", flag: "🇸🇦" },
+    { name: "Singapore", code: "+65", flag: "🇸🇬" },
+    { name: "South Africa", code: "+27", flag: "🇿🇦" },
+    { name: "South Korea", code: "+82", flag: "🇰🇷" },
+    { name: "Spain", code: "+34", flag: "🇪🇸" },
+    { name: "Sweden", code: "+46", flag: "🇸🇪" },
+    { name: "Switzerland", code: "+41", flag: "🇨🇭" },
+    { name: "Syria", code: "+963", flag: "🇸🇾" },
+    { name: "Thailand", code: "+66", flag: "🇹🇭" },
+    { name: "Turkey", code: "+90", flag: "🇹🇷" },
+    { name: "United Arab Emirates", code: "+971", flag: "🇦🇪" },
+    { name: "United Kingdom", code: "+44", flag: "🇬🇧" },
+    { name: "United States", code: "+1", flag: "🇺🇸" },
+    { name: "Yemen", code: "+967", flag: "🇾🇪" }
+  ];
+
+  useEffect(() => {
+    const fetchProduct = async () => {
+      try {
+        setLoadingProduct(true);
+        const docRef = doc(db, 'products', id);
+        const docSnap = await getDoc(docRef);
+
+        if (docSnap.exists()) {
+          const prodData = { id: docSnap.id, ...docSnap.data() };
+          setProduct(prodData);
+
+          setFormData(prev => ({
+            ...prev,
+            packing: selectedPackingParam || prodData.packing || 'Export Standard Box'
+          }));
+        } else {
+          console.error("Product not found in Firestore!");
+        }
+      } catch (error) {
+        console.error("Error fetching product for order:", error);
+      } finally {
+        setLoadingProduct(false);
+      }
+    };
+
+    if (id) {
+      fetchProduct();
+    }
+  }, [id, selectedPackingParam]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!product) return;
     setLoading(true);
 
+    const fullPhoneNumber = `${formData.countryCode} ${formData.phone}`;
+
     try {
       await addDoc(collection(db, 'orders'), {
         name: formData.name,
         email: formData.email,
+        phone: fullPhoneNumber,
         quantity: formData.quantity,
         destination: formData.destination,
         shippingAddress: formData.shippingAddress,
+        packing: formData.packing,
         paymentMethod: formData.paymentMethod,
         productName: product.name,
-        grade: product.grade,
-        packing: product.packing,
+        grade: product.grade || 'Standard',
         status: 'Pending',
         createdAt: serverTimestamp()
       });
 
-      alert(`Direct Order for ${product.name} placed successfully!`);
+      alert(`Direct Order for ${product.name} (${formData.packing}) placed successfully!`);
       navigate('/products');
     } catch (error) {
       console.error('Error placing order: ', error);
@@ -58,6 +146,15 @@ function OrderForm() {
       setLoading(false);
     }
   };
+
+  if (loadingProduct) {
+    return (
+      <div className="flex flex-col justify-center items-center min-h-[60vh] gap-3">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-4 border-emerald-600"></div>
+        <p className="text-lg font-semibold text-emerald-800 animate-pulse">Loading order form...</p>
+      </div>
+    );
+  }
 
   if (!product) {
     return (
@@ -74,42 +171,68 @@ function OrderForm() {
   return (
     <div className="p-6 md:p-12 bg-gradient-to-b from-gray-50 to-emerald-50/30 min-h-screen flex items-center justify-center">
       <div className="max-w-2xl w-full mx-auto">
-        
-        {/* Container Box */}
+
         <div className="bg-white border border-emerald-100 p-8 md:p-10 rounded-3xl shadow-xl relative overflow-hidden">
-          
-          {/* Top Accent Gradient Bar */}
+
           <div className="absolute top-0 left-0 right-0 h-2 bg-gradient-to-r from-amber-500 via-emerald-500 to-emerald-700"></div>
 
           <h2 className="text-3xl md:text-4xl font-extrabold text-emerald-950 mb-2 tracking-tight">Complete Direct Order</h2>
-          <p className="text-gray-600 mb-8 text-sm bg-emerald-50/60 p-3 rounded-xl border border-emerald-100">
-            Selected Product: <strong className="text-emerald-900">{product.name}</strong> ({product.grade} | {product.packing})
+          <p className="text-gray-600 mb-8 text-sm bg-emerald-50/60 p-3 rounded-xl border border-emerald-100 flex flex-col gap-1">
+            <span>Selected Product: <strong className="text-emerald-900">{product.name}</strong> ({product.grade || 'Standard'})</span>
+            <span>Selected Packing: <strong className="text-emerald-800">{formData.packing}</strong></span>
           </p>
 
           <form onSubmit={handleSubmit} className="space-y-5">
-            
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
               <div>
                 <label className="block mb-2 font-semibold text-gray-700 text-sm">{t('yourName', 'Your Name / Company Name')} *</label>
-                <input 
-                  type="text" 
-                  required 
+                <input
+                  type="text"
+                  required
                   className="w-full p-3.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-600 focus:bg-white transition text-gray-800"
                   placeholder="e.g. John Traders"
                   value={formData.name}
-                  onChange={(e) => setFormData({...formData, name: e.target.value})}
+                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                 />
               </div>
 
               <div>
                 <label className="block mb-2 font-semibold text-gray-700 text-sm">{t('emailLabel', 'Email Address')} *</label>
-                <input 
-                  type="email" 
-                  required 
+                <input
+                  type="email"
+                  required
                   className="w-full p-3.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-600 focus:bg-white transition text-gray-800"
                   placeholder="name@company.com"
                   value={formData.email}
-                  onChange={(e) => setFormData({...formData, email: e.target.value})}
+                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                />
+              </div>
+            </div>
+
+            {/* Phone Number with Scrollable Country Code Dropdown */}
+            <div>
+              <label className="block mb-2 font-semibold text-gray-700 text-sm">Phone Number  *</label>
+              <div className="flex gap-2">
+                <select
+                  className="w-40 p-3.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-600 focus:bg-white transition text-gray-800 cursor-pointer font-medium text-sm max-h-48 overflow-y-auto"
+                  value={formData.countryCode}
+                  onChange={(e) => setFormData({ ...formData, countryCode: e.target.value })}
+                >
+                  {countryCodes.map((c, index) => (
+                    <option key={index} value={c.code}>
+                      {c.flag} {c.code} ({c.name})
+                    </option>
+                  ))}
+                </select>
+                
+                <input
+                  type="tel"
+                  required
+                  className="flex-1 p-3.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-600 focus:bg-white transition text-gray-800"
+                  placeholder="300 1234567"
+                  value={formData.phone}
+                  onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                 />
               </div>
             </div>
@@ -117,62 +240,63 @@ function OrderForm() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
               <div>
                 <label className="block mb-2 font-semibold text-gray-700 text-sm">Order Quantity *</label>
-                <input 
-                  type="text" 
-                  required 
+                <input
+                  type="text"
+                  required
                   placeholder="e.g. 50 Tons / Boxes"
                   className="w-full p-3.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-600 focus:bg-white transition text-gray-800"
                   value={formData.quantity}
-                  onChange={(e) => setFormData({...formData, quantity: e.target.value})}
+                  onChange={(e) => setFormData({ ...formData, quantity: e.target.value })}
                 />
               </div>
               <div>
                 <label className="block mb-2 font-semibold text-gray-700 text-sm">Destination Country *</label>
-                <input 
-                  type="text" 
-                  required 
+                <input
+                  type="text"
+                  required
                   placeholder="e.g. Canada, Germany"
                   className="w-full p-3.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-600 focus:bg-white transition text-gray-800"
                   value={formData.destination}
-                  onChange={(e) => setFormData({...formData, destination: e.target.value})}
+                  onChange={(e) => setFormData({ ...formData, destination: e.target.value })}
                 />
               </div>
             </div>
 
             <div>
               <label className="block mb-2 font-semibold text-gray-700 text-sm">Complete Port / Shipping Address *</label>
-              <textarea 
+              <textarea
                 rows="2"
                 required
                 placeholder="Enter full port or warehouse delivery address..."
                 className="w-full p-3.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-600 focus:bg-white transition text-gray-800 resize-none"
                 value={formData.shippingAddress}
-                onChange={(e) => setFormData({...formData, shippingAddress: e.target.value})}
+                onChange={(e) => setFormData({ ...formData, shippingAddress: e.target.value })}
               />
             </div>
 
             <div>
               <label className="block mb-2 font-semibold text-gray-700 text-sm">Preferred Payment Term *</label>
-              <select 
+              <select
                 className="w-full p-3.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-600 focus:bg-white transition text-gray-800 cursor-pointer"
                 value={formData.paymentMethod}
-                onChange={(e) => setFormData({...formData, paymentMethod: e.target.value})}
+                onChange={(e) => setFormData({ ...formData, paymentMethod: e.target.value })}
               >
                 <option value="Bank Transfer (T.T)">Direct Bank Transfer / T.T</option>
                 <option value="Letter of Credit (LC)">Letter of Credit (LC)</option>
                 <option value="Advance Payment">Advance Payment</option>
+                <option value="Cash on Delivery">Cash on Delivery</option>
               </select>
             </div>
 
             <div className="flex gap-4 pt-4 border-t border-gray-100">
-              <Link 
-                to={`/product/${id}`} 
-                className="w-1/3 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-3.5 rounded-xl transition text-center shadow-sm"
+              <Link
+                to={`/product/${id}`}
+                className="w-1/3 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-3.5 rounded-xl transition text-center shadow-sm flex items-center justify-center"
               >
                 Cancel
               </Link>
-              <button 
-                type="submit" 
+              <button
+                type="submit"
                 disabled={loading}
                 className="w-2/3 bg-gradient-to-r from-emerald-700 to-emerald-900 hover:from-emerald-800 hover:to-emerald-950 text-white font-bold py-3.5 rounded-xl transition shadow-lg hover:shadow-emerald-900/30 cursor-pointer disabled:opacity-50"
               >

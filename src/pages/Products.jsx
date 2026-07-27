@@ -18,8 +18,8 @@ function Products() {
       id: "1", 
       name: "Premium Mango", 
       grade: "A-Grade", 
-      packing: "5kg Box", 
-      desc: "Best quality Chaunsa mangoes in wooden boxes, graded for international export.",
+      packing: "5kg , 10kg ", 
+      desc: "Best quality Chaunsa mangoes in boxes and baskets, graded for international export.",
       img: "/Mango.png",
       extraImages: ["/Mango.png", "/mangopack.png", "/mangobox.png", "/mangoes.png"],
       seasonStatus: "In Season"
@@ -28,17 +28,17 @@ function Products() {
       id: "2", 
       name: "Juicy Malta", 
       grade: "A-Grade", 
-      packing: "10kg Box", 
+      packing: "5kg, 10kg ", 
       desc: "Fresh Kinnow/Malta from Punjab orchards, rich in juice and vitamins.",
       img: "/Orangegarden.png",
       extraImages: ["/Orangegarden.png", "/orange.png", "/packmalta.png", "/boxorange.png"],
-      seasonStatus: "In Season"
+      seasonStatus: "Out of Season"
     },
     { 
       id: "3", 
       name: "Fresh Cherry", 
       grade: "Premium", 
-      packing: "2.5kg Box", 
+      packing: "1kg , 5kg & 10kg ", 
       desc: "Handpicked premium cherries packed securely for long-distance transport.",
       img: "/cherrybox.png",
       extraImages: ["/cherrybox.png", "/cherries.png", "/cherrish.png", "/cherrypacks.png"],
@@ -48,7 +48,7 @@ function Products() {
       id: "4", 
       name: "Export Potato", 
       grade: "Class-1", 
-      packing: "20kg Bag", 
+      packing: "3kg, 5kg, 10kg & 25kg", 
       desc: "Cleaned and sorted potatoes suited for bulk storage and commercial use.",
       img: "/potatoo.png",
       extraImages: ["/potatoo.png", "/potato.png", "/sack.png", "/sacks.png"],
@@ -59,25 +59,22 @@ function Products() {
   const fetchProducts = async () => {
     try {
       setLoading(true);
+      // Force update or fetch from products collection
       const querySnapshot = await getDocs(collection(db, 'products'));
       
-      if (querySnapshot.empty) {
-        for (const prod of initialProducts) {
-          await setDoc(doc(db, 'products', prod.id), prod);
-        }
-        const reloadedSnapshot = await getDocs(collection(db, 'products'));
-        const productsList = reloadedSnapshot.docs.map(doc => ({
-          ...doc.data(),
-          id: doc.id
-        }));
-        setProducts(productsList);
-      } else {
-        const productsList = querySnapshot.docs.map(doc => ({
-          ...doc.data(),
-          id: doc.id
-        }));
-        setProducts(productsList);
+      // Agar ap chahte hain ke naye packings foran Firebase mein update ho jayein, 
+      // toh hum yahan har product ko loop karke setDoc se overwrite kar dein ge.
+      for (const prod of initialProducts) {
+        await setDoc(doc(db, 'products', prod.id), prod, { merge: true });
       }
+
+      const reloadedSnapshot = await getDocs(collection(db, 'products'));
+      const productsList = reloadedSnapshot.docs.map(doc => ({
+        ...doc.data(),
+        id: doc.id
+      }));
+      setProducts(productsList);
+
     } catch (error) {
       console.error("Error fetching products:", error);
     } finally {
@@ -157,12 +154,12 @@ function Products() {
                 <div>
                   <div className="mt-5 space-y-1.5 text-sm text-gray-600 mb-6 border-t border-gray-100 pt-4">
                     <p className="flex justify-between px-2">
-                      <span className="text-gray-400">{t('gradeLabel', 'Grade:')}</span> 
+                      <span className="text-400">{t('gradeLabel', 'Grade:')}</span> 
                       <strong className="text-emerald-800">{product.grade}</strong>
                     </p>
                     <p className="flex justify-between px-2">
                       <span className="text-gray-400">{t('packingLabel', 'Packing:')}</span> 
-                      <strong className="text-emerald-800">{product.packing}</strong>
+                      <strong className="text-emerald-800 text-xs sm:text-sm">{product.packing}</strong>
                     </p>
                   </div>
                   

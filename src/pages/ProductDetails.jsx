@@ -1,16 +1,34 @@
 import { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { db } from '../firebase';
 import { doc, getDoc } from 'firebase/firestore';
 
 function ProductDetails() {
   const { id } = useParams();
+  const navigate = useNavigate();
   const { t } = useTranslation();
   
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [activeImage, setActiveImage] = useState('');
+  const [selectedPacking, setSelectedPacking] = useState('');
+
+  // Product ke naam ke mutabiq available packing options ki list
+  const getPackingOptions = (productName) => {
+    if (!productName) return ["Export Standard Box"];
+    const name = productName.toLowerCase();
+    if (name.includes('potato')) {
+      return ["3kg Bag", "5kg Bag", "10kg Bag", "25kg Bag"];
+    } else if (name.includes('malta') || name.includes('orange')) {
+      return ["5kg Export Box", "10kg Export Box", "5kg Basket", "10kg Basket"];
+    } else if (name.includes('mango')) {
+      return ["5kg Carton Box", "10kg Carton Box"];
+    } else if (name.includes('cherry')) {
+      return ["1kg Box", "5kg Box", "10kg Basket"];
+    }
+    return ["Standard Export Box", "Bulk Packing"];
+  };
 
   // Fetch product dynamically from Firebase based on ID
   useEffect(() => {
@@ -24,9 +42,13 @@ function ProductDetails() {
           const prodData = { id: docSnap.id, ...docSnap.data() };
           setProduct(prodData);
           
-          // Set initial main image (fallback to product.img if extraImages not defined)
+          // Set initial main image
           const initialImg = prodData.img || "/placeholder.png";
           setActiveImage(initialImg);
+
+          // Set default selected packing option
+          const options = getPackingOptions(prodData.name);
+          setSelectedPacking(options[0]);
         } else {
           console.error("No such product in Firebase!");
         }
@@ -63,12 +85,21 @@ function ProductDetails() {
     );
   }
 
-  // Fallback extra images array if not stored in Firebase yet
   const galleryImages = product.extraImages && product.extraImages.length > 0 
     ? product.extraImages 
     : [product.img, product.img, product.img, product.img];
 
   const isOutOfSeason = product.seasonStatus === 'Out of Season';
+  const packingOptions = getPackingOptions(product.name);
+
+  // Handle Navigation with selected packing state passed via URL query or router state
+  const handleDirectOrder = () => {
+    navigate(`/order/${id}?packing=${encodeURIComponent(selectedPacking)}`);
+  };
+
+  const handleRequestQuote = () => {
+    navigate(`/quote/${id}?packing=${encodeURIComponent(selectedPacking)}`);
+  };
 
   return (
     <div className="p-6 md:p-12 bg-gradient-to-b from-gray-50 to-emerald-50/30 min-h-screen flex items-center">
@@ -80,10 +111,8 @@ function ProductDetails() {
 
           {/* LEFT SIDE: Images Gallery with Smooth Switching */}
           <div className="space-y-4">
-            {/* Main Preview Image with Fixed Frame */}
             <div className="h-96 w-full flex items-center justify-center overflow-hidden rounded-2xl bg-gradient-to-b from-emerald-50/50 to-amber-50/30 p-6 border border-emerald-100 shadow-inner group relative">
               
-              {/* Season Status Badge on Image */}
               <div className="absolute top-4 left-4 z-10">
                 <span className={`px-3 py-1.5 rounded-full text-xs font-extrabold shadow-md ${
                   isOutOfSeason 
@@ -101,7 +130,6 @@ function ProductDetails() {
               />
             </div>
 
-            {/* Thumbnails Selection with Click State Update */}
             <div className="flex gap-3 justify-center flex-wrap">
               {galleryImages.map((imgSrc, index) => (
                 <button
@@ -116,27 +144,41 @@ function ProductDetails() {
             </div>
           </div>
 
-          {/* RIGHT SIDE: Product Info & Action Buttons */}
+          {/* RIGHT SIDE: Product Info & Packing Selector */}
           <div className="flex flex-col h-full justify-between space-y-6">
             <div>
               <span className="bg-emerald-100 text-emerald-800 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider border border-emerald-200">
                 Verified Export Item
               </span>
-              <h2 className="text-4xl font-extrabold text-emerald-950 mt-3 mb-4 tracking-tight">{product.name}</h2>
-              <p className="text-gray-600 text-base mb-6 leading-relaxed">
+              <h2 className="text-4xl font-extrabold text-emerald-950 mt-3 mb-3 tracking-tight">{product.name}</h2>
+              <p className="text-gray-600 text-sm mb-6 leading-relaxed">
                 {product.desc || "Premium agricultural produce cultivated and packaged for global export standards."}
               </p>
               
-              {/* Quality & Packing Badges Grid */}
-              <div className="grid grid-cols-2 gap-4 mb-6 bg-gradient-to-br from-emerald-50/60 to-gray-50 p-5 rounded-2xl border border-emerald-100 shadow-sm">
-                <div className="border-r border-emerald-200/60 pr-4">
+              {/* Quality Grade */}
+              <div className="mb-4 bg-gradient-to-br from-emerald-50/60 to-gray-50 p-4 rounded-2xl border border-emerald-100 shadow-sm flex justify-between items-center">
+                <div>
                   <span className="block text-gray-400 text-xs uppercase font-semibold">{t('gradeLabel', 'Quality Grade')}</span>
-                  <strong className="text-xl text-emerald-900 font-bold">{product.grade || "Standard"}</strong>
+                  <strong className="text-lg text-emerald-900 font-bold">{product.grade || "Standard"}</strong>
                 </div>
-                <div className="pl-2">
-                  <span className="block text-gray-400 text-xs uppercase font-semibold">{t('packingLabel', 'Packing Type')}</span>
-                  <strong className="text-xl text-emerald-900 font-bold">{product.packing || "Export Box"}</strong>
-                </div>
+              </div>
+
+              {/* Packing Weight Selector Dropdown */}
+              <div className="mb-6">
+                <label className="block text-xs font-bold text-gray-700 mb-2 uppercase tracking-wider">
+                  Select Packing Weight / Type *
+                </label>
+                <select
+                  value={selectedPacking}
+                  onChange={(e) => setSelectedPacking(e.target.value)}
+                  className="w-full p-3.5 bg-white border border-emerald-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-600 font-semibold text-emerald-950 text-sm shadow-sm cursor-pointer"
+                >
+                  {packingOptions.map((packOption, idx) => (
+                    <option key={idx} value={packOption}>
+                      {packOption}
+                    </option>
+                  ))}
+                </select>
               </div>
             </div>
 
@@ -148,26 +190,26 @@ function ProductDetails() {
               </div>
             )}
 
-            {/* Action Buttons with Gradients & Neon Shadows */}
-            <div className="space-y-3.5 pt-4 border-t border-gray-100">
+            {/* Action Buttons */}
+            <div className="space-y-3.5 pt-2 border-t border-gray-100">
               {isOutOfSeason ? (
                 <div className="w-full bg-gray-200 text-gray-500 font-bold py-3.5 rounded-xl text-center text-base cursor-not-allowed">
                   Currently Unavailable (Out of Season)
                 </div>
               ) : (
                 <>
-                  <Link
-                    to={`/quote/${id}`}
-                    className="block w-full bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-emerald-950 font-bold py-3.5 rounded-xl transition shadow-md hover:shadow-amber-500/30 hover:shadow-lg text-center text-base"
+                  <button
+                    onClick={handleRequestQuote}
+                    className="w-full bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-emerald-950 font-bold py-3.5 rounded-xl transition shadow-md hover:shadow-amber-500/30 hover:shadow-lg text-center text-base cursor-pointer"
                   >
                     Request Official Quote 📋
-                  </Link>
-                  <Link
-                    to={`/order/${id}`}
-                    className="block w-full bg-gradient-to-r from-emerald-700 to-emerald-900 hover:from-emerald-800 hover:to-emerald-950 text-white font-bold py-3.5 rounded-xl transition shadow-md hover:shadow-emerald-900/30 hover:shadow-lg text-center text-base"
+                  </button>
+                  <button
+                    onClick={handleDirectOrder}
+                    className="w-full bg-gradient-to-r from-emerald-700 to-emerald-900 hover:from-emerald-800 hover:to-emerald-950 text-white font-bold py-3.5 rounded-xl transition shadow-md hover:shadow-emerald-900/30 hover:shadow-lg text-center text-base cursor-pointer"
                   >
                     Place Direct Order 🚀
-                  </Link>
+                  </button>
                 </>
               )}
               
