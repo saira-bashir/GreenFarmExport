@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { collection, getDocs, doc, updateDoc } from 'firebase/firestore';
+import { collection, getDocs, doc, updateDoc, deleteDoc } from 'firebase/firestore';
 import { db, auth } from '../firebase';
 import { onAuthStateChanged } from 'firebase/auth';
 import { useNavigate } from 'react-router-dom';
@@ -11,6 +11,9 @@ function AdminDashboard() {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
+  
+  // State for Order Details Modal
+  const [selectedOrder, setSelectedOrder] = useState(null);
   
   const navigate = useNavigate();
 
@@ -74,6 +77,22 @@ function AdminDashboard() {
     }
   };
 
+  // Delete Order Function
+  const handleDeleteOrder = async (id) => {
+    if (window.confirm("Kya aap waqai is order ko delete karna chahte hain? Yeh wapas nahi aa sakega!")) {
+      try {
+        await deleteDoc(doc(db, 'orders', id));
+        setOrders(orders.filter(order => order.id !== id));
+        if (selectedOrder && selectedOrder.id === id) {
+          setSelectedOrder(null); // Agar modal khula hai aur wohi order delete ho gaya toh modal band kar dein
+        }
+      } catch (error) {
+        console.error("Error deleting order: ", error);
+        alert("Order delete karne mein masla pesh aaya.");
+      }
+    }
+  };
+
   // Status/Season Update for Products
   const handleProductStatusChange = async (id, newSeasonStatus) => {
     try {
@@ -90,31 +109,31 @@ function AdminDashboard() {
   }
 
   return (
-    <div className="p-8 bg-gray-100 min-h-screen">
+    <div className="p-8 bg-gray-100 min-h-screen relative">
       <div className="max-w-6xl mx-auto">
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-4xl font-bold text-green-800">Admin Management Dashboard</h2>
         </div>
         
-        {/* Navigation Tabs */}
+        {/* Navigation Tabs with Red Number Highlights */}
         <div className="flex flex-wrap gap-4 mb-6">
           <button 
             onClick={() => setActiveTab('inquiries')}
             className={`px-6 py-2.5 rounded-lg font-bold transition ${activeTab === 'inquiries' ? 'bg-green-700 text-white' : 'bg-white text-gray-700 border'}`}
           >
-            Quote Inquiries ({inquiries.length})
+            Quote Inquiries (<span className="text-red-600">{inquiries.length}</span>)
           </button>
           <button 
             onClick={() => setActiveTab('orders')}
             className={`px-6 py-2.5 rounded-lg font-bold transition ${activeTab === 'orders' ? 'bg-green-700 text-white' : 'bg-white text-gray-700 border'}`}
           >
-            Export Orders ({orders.length})
+            Export Orders (<span className="text-red-600">{orders.length}</span>)
           </button>
           <button 
             onClick={() => setActiveTab('products')}
             className={`px-6 py-2.5 rounded-lg font-bold transition ${activeTab === 'products' ? 'bg-green-700 text-white' : 'bg-white text-gray-700 border'}`}
           >
-            Products Season Control ({products.length})
+            Products Season Control (<span className="text-red-600">{products.length}</span>)
           </button>
         </div>
 
@@ -154,23 +173,18 @@ function AdminDashboard() {
                           </td>
                           <td className="p-3">{item.quantity || 'N/A'}</td>
                           <td className="p-3">
-                            <span className={`px-2.5 py-1 rounded-full text-xs font-bold ${
-                              item.status === 'Delivered' ? 'bg-green-100 text-green-700' : 
-                              item.status === 'Processing' ? 'bg-yellow-100 text-yellow-700' : 'bg-red-100 text-red-700'
-                            }`}>
-                              {item.status || 'Pending'}
-                            </span>
-                          </td>
-                          <td className="p-3">
                             <select 
                               value={item.status || 'Pending'}
                               onChange={(e) => handleInquiryStatusChange(item.id, e.target.value)}
-                              className="p-1 border rounded text-xs bg-white font-medium"
+                              className="p-1.5 border rounded-xl text-xs bg-white font-medium shadow-sm"
                             >
                               <option value="Pending">Pending</option>
                               <option value="Processing">Processing</option>
                               <option value="Delivered">Delivered</option>
                             </select>
+                          </td>
+                          <td className="p-3">
+                            <span className="text-xs text-gray-400">N/A</span>
                           </td>
                         </tr>
                       ))
@@ -188,52 +202,62 @@ function AdminDashboard() {
                   <thead>
                     <tr className="bg-green-700 text-white text-sm">
                       <th className="p-3">Buyer & Email</th>
-                      <th className="p-3">Product Info</th>
-                      <th className="p-3">Destination & Payment</th>
+                      <th className="p-3">Product</th>
                       <th className="p-3">Quantity</th>
                       <th className="p-3">Status</th>
-                      <th className="p-3">Action</th>
+                      <th className="p-3 text-center">Actions</th>
                     </tr>
                   </thead>
                   <tbody className="text-sm">
                     {orders.length === 0 ? (
                       <tr>
-                        <td colSpan="6" className="text-center py-6 text-gray-500">No confirmed orders placed yet.</td>
+                        <td colSpan="5" className="text-center py-6 text-gray-500">No confirmed orders placed yet.</td>
                       </tr>
                     ) : (
                       orders.map((order) => (
                         <tr key={order.id} className="border-b hover:bg-gray-50">
                           <td className="p-3">
-                            <div className="font-bold">{order.name}</div>
+                            <div className="font-bold text-gray-900">{order.name}</div>
                             <div className="text-xs text-gray-500">{order.email}</div>
                           </td>
-                          <td className="p-3">
-                            <div className="font-semibold text-green-800">{order.productName}</div>
-                            <div className="text-xs text-gray-500">Grade: {order.grade} | Packing: {order.packing}</div>
+                          <td className="p-3 font-semibold text-green-800">
+                            {order.productName}
                           </td>
-                          <td className="p-3">
-                            <div>Country: <span className="font-medium">{order.destination}</span></div>
-                            <div className="text-xs text-gray-500">Payment: {order.paymentMethod}</div>
+                          <td className="p-3 font-semibold text-gray-700">
+                            {order.quantity}
                           </td>
-                          <td className="p-3 font-semibold">{order.quantity}</td>
-                          <td className="p-3">
-                            <span className={`px-2.5 py-1 rounded-full text-xs font-bold ${
-                              order.status === 'Delivered' ? 'bg-green-100 text-green-700' : 
-                              order.status === 'Processing' ? 'bg-yellow-100 text-yellow-700' : 'bg-red-100 text-red-700'
-                            }`}>
-                              {order.status || 'Pending'}
-                            </span>
-                          </td>
+                          {/* Status Dropdown inside Status Column */}
                           <td className="p-3">
                             <select 
                               value={order.status || 'Pending'}
                               onChange={(e) => handleOrderStatusChange(order.id, e.target.value)}
-                              className="p-1 border rounded text-xs bg-white font-medium"
+                              className={`p-2 border rounded-xl text-xs font-bold shadow-sm ${
+                                order.status === 'Delivered' ? 'bg-green-100 text-green-700 border-green-300' : 
+                                order.status === 'Processing' ? 'bg-yellow-100 text-yellow-700 border-yellow-300' : 'bg-red-100 text-red-700 border-red-300'
+                              }`}
                             >
-                              <option value="Pending">Pending</option>
-                              <option value="Processing">Processing</option>
-                              <option value="Delivered">Delivered</option>
+                              <option value="Pending" className="bg-white text-gray-800">Pending</option>
+                              <option value="Processing" className="bg-white text-gray-800">Processing</option>
+                              <option value="Delivered" className="bg-white text-gray-800">Delivered</option>
                             </select>
+                          </td>
+                          {/* Actions Column: Only View Details & Delete Buttons */}
+                          <td className="p-3">
+                            <div className="flex items-center justify-center gap-2">
+                              <button
+                                onClick={() => setSelectedOrder(order)}
+                                className="bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold py-2 px-3 rounded-xl shadow transition flex items-center gap-1"
+                              >
+                                👁️ View
+                              </button>
+                              <button
+                                onClick={() => handleDeleteOrder(order.id)}
+                                className="bg-red-600 hover:bg-red-700 text-white text-xs font-bold py-2 px-2.5 rounded-xl shadow transition flex items-center gap-1"
+                                title="Delete Order"
+                              >
+                                🗑️ Delete
+                              </button>
+                            </div>
                           </td>
                         </tr>
                       ))
@@ -294,6 +318,107 @@ function AdminDashboard() {
           </div>
         )}
       </div>
+
+      {/* ORDER DETAILS POPUP MODAL */}
+      {selectedOrder && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex justify-center items-center z-50 p-4">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-lg w-full overflow-hidden border border-green-100 animate-in fade-in zoom-in duration-200">
+            
+            {/* Modal Header */}
+            <div className="bg-green-800 text-white px-6 py-4 flex justify-between items-center">
+              <h3 className="text-lg font-bold">📦 Order Complete Details</h3>
+              <button 
+                onClick={() => setSelectedOrder(null)}
+                className="text-white hover:text-gray-200 text-xl font-bold px-2 py-0.5 rounded-lg hover:bg-green-700 transition"
+              >
+                ✕
+              </button>
+            </div>
+
+            {/* Modal Body */}
+            <div className="p-6 space-y-4 max-h-[75vh] overflow-y-auto text-sm">
+              <div className="grid grid-cols-2 gap-4 border-b pb-3">
+                <div>
+                  <span className="text-gray-500 block text-xs">Buyer Name</span>
+                  <strong className="text-gray-800 text-base">{selectedOrder.name}</strong>
+                </div>
+                <div>
+                  <span className="text-gray-500 block text-xs">Email Address</span>
+                  <strong className="text-gray-800 truncate block">{selectedOrder.email}</strong>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4 border-b pb-3">
+                <div>
+                  <span className="text-gray-500 block text-xs">Phone Number / WhatsApp</span>
+                  <strong className="text-green-700 text-base">{selectedOrder.phone || 'N/A'}</strong>
+                </div>
+                <div>
+                  <span className="text-gray-500 block text-xs">Destination Country</span>
+                  <strong className="text-gray-800">{selectedOrder.destination}</strong>
+                </div>
+              </div>
+
+              <div className="border-b pb-3">
+                <span className="text-gray-500 block text-xs">Complete Shipping Address</span>
+                <p className="text-gray-900 font-medium bg-gray-50 p-2.5 rounded-xl border mt-1">
+                  {selectedOrder.shippingAddress || 'No shipping address provided.'}
+                </p>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4 border-b pb-3">
+                <div>
+                  <span className="text-gray-500 block text-xs">Product Name</span>
+                  <strong className="text-green-800 text-base">{selectedOrder.productName}</strong>
+                </div>
+                <div>
+                  <span className="text-gray-500 block text-xs">Quantity</span>
+                  <strong className="text-gray-800">{selectedOrder.quantity}</strong>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4 border-b pb-3">
+                <div>
+                  <span className="text-gray-500 block text-xs">Grade & Packing</span>
+                  <span className="text-gray-700 font-medium">{selectedOrder.grade} | {selectedOrder.packing}</span>
+                </div>
+                <div>
+                  <span className="text-gray-500 block text-xs">Payment Method</span>
+                  <span className="text-gray-700 font-medium">{selectedOrder.paymentMethod}</span>
+                </div>
+              </div>
+
+              <div className="flex justify-between items-center pt-2">
+                <span className="text-gray-500 text-xs">Order Current Status:</span>
+                <span className={`px-3 py-1 rounded-full text-xs font-bold ${
+                  selectedOrder.status === 'Delivered' ? 'bg-green-100 text-green-700' : 
+                  selectedOrder.status === 'Processing' ? 'bg-yellow-100 text-yellow-700' : 'bg-red-100 text-red-700'
+                }`}>
+                  {selectedOrder.status || 'Pending'}
+                </span>
+              </div>
+            </div>
+
+            {/* Modal Footer */}
+            <div className="bg-gray-50 px-6 py-3 flex justify-between items-center border-t">
+              <button
+                onClick={() => handleDeleteOrder(selectedOrder.id)}
+                className="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-xl text-xs transition"
+              >
+                🗑️ Delete Order
+              </button>
+              <button
+                onClick={() => setSelectedOrder(null)}
+                className="bg-gray-700 hover:bg-gray-800 text-white font-bold py-2 px-5 rounded-xl text-xs transition"
+              >
+                Close
+              </button>
+            </div>
+
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }

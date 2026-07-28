@@ -21,7 +21,7 @@ function QuoteForm() {
     email: '',
     countryCode: '+92',
     phone: '',
-    quantity: '',
+    quantity: '1', // Default 1 selected
     destination: '',
     packing: '',
     message: ''
@@ -29,7 +29,7 @@ function QuoteForm() {
 
   const [loading, setLoading] = useState(false);
 
-  // Complete World Country Calling Codes list with scroll support
+  // Complete World Country Calling Codes list with Flags
   const countryCodes = [
     { name: "Afghanistan", code: "+93", flag: "🇦🇫" },
     { name: "Albania", code: "+355", flag: "🇦🇱" },
@@ -119,15 +119,16 @@ function QuoteForm() {
     setLoading(true);
 
     const fullPhoneNumber = `${formData.countryCode} ${formData.phone}`;
+    const formattedQuantity = `${formData.quantity} ${formData.packing}${formData.quantity > 1 ? 's' : ''}`;
 
     try {
       await addDoc(collection(db, 'contacts'), {
         name: formData.name,
         email: formData.email,
         phone: fullPhoneNumber,
-        quantity: formData.quantity,
+        quantity: formattedQuantity,
         destination: formData.destination,
-        message: `Quote Inquiry for ${product.name} (Grade: ${product.grade || 'Standard'}, Packing: ${formData.packing}). Phone: ${fullPhoneNumber}. Note: ${formData.message || 'None'}`,
+        message: `Quote Inquiry for ${product.name} (Grade: ${product.grade || 'Standard'}, Packing: ${formData.packing}). Quantity: ${formattedQuantity}. Phone: ${fullPhoneNumber}. Note: ${formData.message || 'None'}`,
         status: 'Pending',
         createdAt: serverTimestamp()
       });
@@ -207,18 +208,18 @@ function QuoteForm() {
               </div>
             </div>
 
-            {/* Phone Number with Scrollable Country Code Dropdown */}
+            {/* Phone Number with Flag Dropdown & Responsive Width */}
             <div>
               <label className="block mb-2 font-semibold text-gray-700 text-sm">Phone Number *</label>
               <div className="flex gap-2">
                 <select
-                  className="w-40 p-3.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-600 focus:bg-white transition text-gray-800 cursor-pointer font-medium text-sm max-h-48 overflow-y-auto"
+                  className="w-28 sm:w-32 p-3.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-600 focus:bg-white transition text-gray-800 cursor-pointer font-medium text-xs sm:text-sm font-sans"
                   value={formData.countryCode}
                   onChange={(e) => setFormData({ ...formData, countryCode: e.target.value })}
                 >
                   {countryCodes.map((c, index) => (
-                    <option key={index} value={c.code}>
-                      {c.flag} {c.code} ({c.name})
+                    <option key={index} value={c.code} style={{ fontFamily: 'sans-serif' }}>
+                      {c.flag} {c.code}
                     </option>
                   ))}
                 </select>
@@ -226,7 +227,7 @@ function QuoteForm() {
                 <input
                   type="tel"
                   required
-                  className="flex-1 p-3.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-600 focus:bg-white transition text-gray-800"
+                  className="flex-1 min-w-0 p-3.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-600 focus:bg-white transition text-gray-800 text-sm"
                   placeholder="300 1234567"
                   value={formData.phone}
                   onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
@@ -235,17 +236,25 @@ function QuoteForm() {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+              {/* Quantity Dropdown (1 to 100 with Dynamic Packing Unit) */}
               <div>
-                <label className="block mb-2 font-semibold text-gray-700 text-sm">Required Quantity *</label>
-                <input 
-                  type="text" 
-                  required 
-                  placeholder="e.g. 100 Boxes / Tons"
-                  className="w-full p-3.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-600 focus:bg-white transition text-gray-800"
+                <label className="block mb-2 font-semibold text-gray-700 text-sm">
+                  Required Quantity ({formData.packing || 'Units'}) *
+                </label>
+                <select
+                  required
+                  className="w-full p-3.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-600 focus:bg-white transition text-gray-800 cursor-pointer"
                   value={formData.quantity}
-                  onChange={(e) => setFormData({...formData, quantity: e.target.value})}
-                />
+                  onChange={(e) => setFormData({ ...formData, quantity: e.target.value })}
+                >
+                  {[...Array(100)].map((_, i) => (
+                    <option key={i + 1} value={i + 1}>
+                      {i + 1} {formData.packing ? `${formData.packing}${i > 0 ? 's' : ''}` : (i === 0 ? 'Unit' : 'Units')}
+                    </option>
+                  ))}
+                </select>
               </div>
+
               <div>
                 <label className="block mb-2 font-semibold text-gray-700 text-sm">Destination Country *</label>
                 <input 

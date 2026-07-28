@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { FaFacebookF, FaTiktok, FaWhatsapp, FaEnvelope, FaPhone, FaMapMarkerAlt } from 'react-icons/fa';
+import { FaFacebookF, FaInstagram, FaSnapchatGhost, FaTiktok, FaWhatsapp, FaEnvelope, FaPhone, FaMapMarkerAlt } from 'react-icons/fa';
 
 function Footer() {
   const { t } = useTranslation();
@@ -30,7 +30,7 @@ function Footer() {
           {/* Social Media Links with Official Icons & Real URLs */}
           <div className="pt-2">
             <p className="text-xs font-bold text-amber-400 uppercase tracking-widest mb-3">Connect With Us</p>
-            <div className="flex items-center gap-3">
+            <div className="flex items-center flex-wrap gap-3">
               {/* Facebook Link */}
               <a 
                 href="https://www.facebook.com/profile.php?id=61591954553938" 
@@ -41,6 +41,16 @@ function Footer() {
               >
                 <FaFacebookF size={18} />
               </a>
+              {/* Instagram Link */}
+              <a 
+                href="https://www.instagram.com" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="w-10 h-10 rounded-xl bg-emerald-900/80 border border-emerald-700/60 flex items-center justify-center text-white hover:bg-amber-500 hover:text-emerald-950 hover:border-amber-400 transition duration-300 shadow-md"
+                title="Instagram"
+              >
+                <FaInstagram size={18} />
+              </a>
               {/* TikTok Link */}
               <a 
                 href="https://www.tiktok.com/@green.farm.export?_r=1&_t=ZS-98IlmX2QHbg" 
@@ -50,6 +60,16 @@ function Footer() {
                 title="TikTok"
               >
                 <FaTiktok size={18} />
+              </a>
+              {/* Snapchat Link */}
+              <a 
+                href="https://www.snapchat.com" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="w-10 h-10 rounded-xl bg-emerald-900/80 border border-emerald-700/60 flex items-center justify-center text-white hover:bg-amber-500 hover:text-emerald-950 hover:border-amber-400 transition duration-300 shadow-md"
+                title="Snapchat"
+              >
+                <FaSnapchatGhost size={18} />
               </a>
               {/* WhatsApp Link */}
               <a 
@@ -107,11 +127,15 @@ function Footer() {
           <p className="text-emerald-100/80 text-sm flex items-center gap-2.5">
             <FaEnvelope className="text-amber-400 shrink-0" /> Email: <strong className="text-white">greenfarmexport0@gmail.com</strong>
           </p>
-          <p className="text-emerald-100/80 text-sm flex items-center gap-2.5">
-            <FaPhone className="text-amber-400 shrink-0" /> Phone 1: <strong className="text-white">+92 302-8882499</strong> (Ahmad Ch)
+          <p className="text-emerald-100/80 text-sm flex items-start gap-2.5">
+            <FaPhone className="text-amber-400 shrink-0 mt-1" /> 
+            <span>
+              Phone (Ahmad Ch): <br />
+              <strong className="text-white">+92 302-8882499</strong> / <strong className="text-white">+92 304-1500011</strong>
+            </span>
           </p>
           <p className="text-emerald-100/80 text-sm flex items-center gap-2.5">
-            <FaPhone className="text-amber-400 shrink-0" /> Phone 2: <strong className="text-white">+92 302-3586354</strong> (Umer Akbar)
+            <FaPhone className="text-amber-400 shrink-0" /> Phone (Umer Akbar): <strong className="text-white">+92 302-3586354</strong>
           </p>
           <p className="text-emerald-100/80 text-sm pt-2 leading-relaxed flex items-start gap-2.5">
             <FaMapMarkerAlt className="text-amber-400 shrink-0 mt-1" />
