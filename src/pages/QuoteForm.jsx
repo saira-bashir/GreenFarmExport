@@ -174,7 +174,26 @@ function QuoteForm() {
           {/* Top Accent Gradient Bar */}
           <div className="absolute top-0 left-0 right-0 h-2 bg-gradient-to-r from-amber-500 via-emerald-500 to-emerald-700"></div>
 
-          <h2 className="text-3xl md:text-4xl font-extrabold text-emerald-950 mb-2 tracking-tight">Request Official Quote</h2>
+          {/* Centered Heading */}
+          <h2 className="text-3xl md:text-4xl font-extrabold text-emerald-950 mb-4 text-center tracking-tight">Request Official Quote</h2>
+
+          {/* Smooth Sliding Trust Ticker Row with Soft Gradient Background */}
+          <div className="mb-6 bg-gradient-to-r from-emerald-900 via-teal-900 to-emerald-950 text-amber-200 py-2.5 overflow-hidden whitespace-nowrap rounded-xl border border-emerald-700/60 shadow-sm">
+            <div className="inline-flex animate-marquee space-x-12 font-bold text-xs tracking-wider uppercase">
+              <span className="flex items-center gap-1.5">⚡ Fast Dispatch: Within 24 Hours</span>
+              <span>•</span>
+              <span className="flex items-center gap-1.5">🛡️ 100% Safe Export Packaging</span>
+              <span>•</span>
+              <span className="flex items-center gap-1.5">⭐ Grade-A Quality Assured</span>
+              <span>•</span>
+              <span className="flex items-center gap-1.5">⚡ Fast Dispatch: Within 24 Hours</span>
+              <span>•</span>
+              <span className="flex items-center gap-1.5">🛡️ 100% Safe Export Packaging</span>
+              <span>•</span>
+              <span className="flex items-center gap-1.5">⭐ Grade-A Quality Assured</span>
+            </div>
+          </div>
+
           <p className="text-gray-600 mb-8 text-sm bg-emerald-50/60 p-3 rounded-xl border border-emerald-100 flex flex-col gap-1">
             <span>Selected Product: <strong className="text-emerald-900">{product.name}</strong> ({product.grade || 'Standard'})</span>
             <span>Selected Packing: <strong className="text-emerald-800">{formData.packing}</strong></span>

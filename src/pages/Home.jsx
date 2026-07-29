@@ -92,7 +92,7 @@ function Home() {
         </div>
       </section>
 
-      {/* Stats & Achievements Section (Updated with exact ISO card styling & top accent bars) */}
+      {/* Stats & Achievements Section */}
       <section className="py-16 bg-gradient-to-b from-emerald-50/40 to-white relative overflow-hidden">
         <div className="container mx-auto px-4 relative z-10">
           <div className="text-center max-w-2xl mx-auto mb-12">
@@ -107,7 +107,7 @@ function Home() {
             </p>
           </div>
 
-          {/* Cards Grid (Matching upper ISO cards style perfectly) */}
+          {/* Cards Grid */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto">
             
             {/* Card 1: Experience */}
@@ -150,6 +150,51 @@ function Home() {
               <p className="text-gray-500 text-xs leading-relaxed">
                 Strict cold-chain logistics and certified export standards.
               </p>
+            </div>
+
+          </div>
+        </div>
+      </section>
+
+      {/* NEW TRUST CARDS SECTION (Icons Centered) */}
+      <section className="py-16 bg-white border-y border-emerald-100">
+        <div className="max-w-6xl mx-auto px-4">
+          <div className="text-center max-w-2xl mx-auto mb-12">
+            <span className="text-emerald-700 font-bold uppercase tracking-wider text-xs bg-emerald-100 px-3 py-1 rounded-full border border-emerald-200">
+              Why Choose Us
+            </span>
+            <h3 className="text-3xl font-extrabold text-emerald-950 mt-3 mb-2">
+              Our Commitment to Excellence
+            </h3>
+            <p className="text-gray-500 text-sm">
+              Ensuring unmatched speed, safety, and reliability from farm to destination.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto">
+            
+            {/* Card 1: Fast Delivery (Centered) */}
+            <div className="bg-white border border-emerald-100 p-6 rounded-3xl shadow-md hover:shadow-xl hover:-translate-y-1 transition duration-300 group relative overflow-hidden text-center">
+              <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-emerald-500 to-emerald-700"></div>
+              <div className="text-3xl mb-3 flex justify-center group-hover:scale-110 transition">⚡</div>
+              <h4 className="text-xl font-bold text-emerald-950 mb-1 group-hover:text-emerald-700 transition">Within 24 Hours</h4>
+              <p className="text-gray-500 text-xs leading-relaxed">Fast processing and swift order dispatch to maintain peak freshness and timeliness.</p>
+            </div>
+
+            {/* Card 2: Safe Export Packaging (Centered) */}
+            <div className="bg-white border border-emerald-100 p-6 rounded-3xl shadow-md hover:shadow-xl hover:-translate-y-1 transition duration-300 group relative overflow-hidden text-center">
+              <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-amber-400 to-amber-600"></div>
+              <div className="text-3xl mb-3 flex justify-center group-hover:scale-110 transition">🛡️</div>
+              <h4 className="text-xl font-bold text-emerald-950 mb-1 group-hover:text-amber-600 transition">100% Safe Logistics</h4>
+              <p className="text-gray-500 text-xs leading-relaxed">Advanced temperature-controlled cold-chain and damage-proof export packaging.</p>
+            </div>
+
+            {/* Card 3: Grade-A Quality Assured (Centered) */}
+            <div className="bg-white border border-emerald-100 p-6 rounded-3xl shadow-md hover:shadow-xl hover:-translate-y-1 transition duration-300 group relative overflow-hidden text-center">
+              <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-emerald-600 to-amber-500"></div>
+              <div className="text-3xl mb-3 flex justify-center group-hover:scale-110 transition">⭐</div>
+              <h4 className="text-xl font-bold text-emerald-950 mb-1 group-hover:text-emerald-700 transition">Grade-A Quality</h4>
+              <p className="text-gray-500 text-xs leading-relaxed">Directly sourced from premium farms with rigorous quality inspection benchmarks.</p>
             </div>
 
           </div>
