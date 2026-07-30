@@ -10,6 +10,7 @@ import QuoteForm from './pages/QuoteForm';
 import OrderForm from './pages/OrderForm';
 import Auth from './pages/Auth';
 import AdminDashboard from './pages/AdminDashboard';
+import Checkout from './pages/Checkout';
 import MyOrders from './pages/MyOrders'; // MyOrders page import kar liya
 
 function App() {
@@ -29,6 +30,7 @@ function App() {
             <Route path="/order/:id" element={<OrderForm />} />
             <Route path="/auth" element={<Auth />} />
             <Route path="/admin" element={<AdminDashboard />} />
+            <Route path="/checkout/:id" element={<Checkout />} />
             <Route path="/my-orders" element={<MyOrders />} /> {/* MyOrders route add kar diya */}
           </Routes>
         </main>

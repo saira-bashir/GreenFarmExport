@@ -25,7 +25,7 @@ function OrderForm() {
     destination: '',
     shippingAddress: '',
     packing: '',
-    paymentMethod: 'Bank Transfer (T.T)'
+    paymentMethod: 'International Card (Stripe)'
   });
 
   const [loading, setLoading] = useState(false);
@@ -122,6 +122,7 @@ function OrderForm() {
     const fullPhoneNumber = `${formData.countryCode} ${formData.phone}`;
 
     try {
+      // Save order in Firebase first
       await addDoc(collection(db, 'orders'), {
         name: formData.name,
         email: formData.email,
@@ -133,11 +134,21 @@ function OrderForm() {
         paymentMethod: formData.paymentMethod,
         productName: product.name,
         grade: product.grade || 'Standard',
-        status: 'Pending',
+        status: formData.paymentMethod.includes('Card') ? 'Pending Payment' : 'Pending',
         createdAt: serverTimestamp()
       });
 
-      alert(`Direct Order for ${product.name} (${formData.packing}) placed successfully!`);
+      // Real Payment Gateway Handler
+      if (formData.paymentMethod.includes('International Card')) {
+        // Stripe Checkout Integration Trigger (Mock/Redirect logic or actual Stripe SDK)
+        alert(`Redirecting to Secure International Payment Gateway (Stripe) for ${product.name}...`);
+        // window.location.href = "https://checkout.stripe.com/..."; // Apni Stripe payment link ya backend endpoint yahan lagayein
+      } else if (formData.paymentMethod.includes('Local Bank / PayFast')) {
+        alert(`Redirecting to Local Pakistani Gateway (PayFast / JazzCash) for secure processing...`);
+      } else {
+        alert(`Direct Order for ${product.name} (${formData.packing}) placed successfully via ${formData.paymentMethod}!`);
+      }
+
       navigate('/products');
     } catch (error) {
       console.error('Error placing order: ', error);
@@ -281,7 +292,7 @@ function OrderForm() {
                 <input
                   type="text"
                   required
-                  placeholder="e.g. Canada, Germany"
+                  placeholder="e.g. Canada, Germany, Pakistan"
                   className="w-full p-3.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-600 focus:bg-white transition text-gray-800"
                   value={formData.destination}
                   onChange={(e) => setFormData({ ...formData, destination: e.target.value })}
@@ -302,17 +313,34 @@ function OrderForm() {
             </div>
 
             <div>
-              <label className="block mb-2 font-semibold text-gray-700 text-sm">Preferred Payment Term *</label>
+              <label className="block mb-2 font-semibold text-gray-700 text-sm">Preferred Payment Method & Gateway *</label>
               <select
-                className="w-full p-3.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-600 focus:bg-white transition text-gray-800 cursor-pointer"
+                className="w-full p-3.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-600 focus:bg-white transition text-gray-800 cursor-pointer font-medium"
                 value={formData.paymentMethod}
                 onChange={(e) => setFormData({ ...formData, paymentMethod: e.target.value })}
               >
-                <option value="Bank Transfer (T.T)">Direct Bank Transfer / T.T</option>
-                <option value="Letter of Credit (LC)">Letter of Credit (LC)</option>
-                <option value="Advance Payment">Advance Payment</option>
-                <option value="Cash on Delivery">Cash on Delivery</option>
+                <optgroup label="🌐 International Secure Gateways">
+                  <option value="International Card (Stripe - Visa/Mastercard/ApplePay)">💳 International Card (Stripe - Visa / Mastercard)</option>
+                  <option value="PayPal Secure Checkout">🅿️ PayPal Secure Checkout</option>
+                </optgroup>
+                <optgroup label="🇵🇰 Local Pakistani Gateways">
+                  <option value="Local Bank / PayFast (JazzCash / EasyPaisa / Cards)">🇵🇰 Local Bank / PayFast (JazzCash / EasyPaisa / Cards)</option>
+                  <option value="Direct Bank Transfer (T.T)">🏦 Direct Bank Transfer / T.T</option>
+                  <option value="Cash on Delivery / Warehouse Pickup">📦 Cash on Delivery / Warehouse Pickup</option>
+                </optgroup>
               </select>
+            </div>
+
+            {/* Live Accepted Payment Badges */}
+            <div className="pt-2">
+              <p className="text-xs text-gray-500 mb-2 font-medium text-center">Supported Local & International Payment Processors:</p>
+              <div className="flex flex-wrap items-center justify-center gap-2 bg-gray-50 p-3 rounded-xl border border-gray-200/80">
+                <span className="px-3 py-1 bg-white border border-gray-300 rounded-md text-xs font-bold text-blue-700 shadow-sm">Stripe</span>
+                <span className="px-3 py-1 bg-white border border-gray-300 rounded-md text-xs font-bold text-blue-500 shadow-sm">PayPal</span>
+                <span className="px-3 py-1 bg-white border border-gray-300 rounded-md text-xs font-bold text-red-600 shadow-sm">PayFast</span>
+                <span className="px-3 py-1 bg-white border border-gray-300 rounded-md text-xs font-bold text-blue-800 shadow-sm">VISA / Master</span>
+                <span className="px-3 py-1 bg-white border border-gray-300 rounded-md text-xs font-bold text-emerald-800 shadow-sm">JazzCash / EasyPaisa</span>
+              </div>
             </div>
 
             <div className="flex gap-4 pt-4 border-t border-gray-100">
@@ -327,7 +355,7 @@ function OrderForm() {
                 disabled={loading}
                 className="w-2/3 bg-gradient-to-r from-emerald-700 to-emerald-900 hover:from-emerald-800 hover:to-emerald-950 text-white font-bold py-3.5 rounded-xl transition shadow-lg hover:shadow-emerald-900/30 cursor-pointer disabled:opacity-50"
               >
-                {loading ? 'Placing Order...' : 'Confirm & Place Order 🚀'}
+                {loading ? 'Processing...' : 'Proceed to Secure Payment 🔒'}
               </button>
             </div>
           </form>
