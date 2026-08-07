@@ -14,7 +14,6 @@ function ProductDetails() {
   const [activeImage, setActiveImage] = useState('');
   const [selectedPacking, setSelectedPacking] = useState('');
 
-  // Product ke naam ke mutabiq available packing options ki list
   const getPackingOptions = (productName) => {
     if (!productName) return ["Export Standard Box"];
     const name = productName.toLowerCase();
@@ -30,7 +29,6 @@ function ProductDetails() {
     return ["Standard Export Box", "Bulk Packing"];
   };
 
-  // Fetch product dynamically from Firebase based on ID
   useEffect(() => {
     const fetchProductDetails = async () => {
       try {
@@ -42,11 +40,9 @@ function ProductDetails() {
           const prodData = { id: docSnap.id, ...docSnap.data() };
           setProduct(prodData);
           
-          // Set initial main image
           const initialImg = prodData.img || "/placeholder.png";
           setActiveImage(initialImg);
 
-          // Set default selected packing option
           const options = getPackingOptions(prodData.name);
           setSelectedPacking(options[0]);
         } else {
@@ -92,7 +88,6 @@ function ProductDetails() {
   const isOutOfSeason = product.seasonStatus === 'Out of Season';
   const packingOptions = getPackingOptions(product.name);
 
-  // Handle Navigation with selected packing state passed via URL query or router state
   const handleDirectOrder = () => {
     navigate(`/order/${id}?packing=${encodeURIComponent(selectedPacking)}`);
   };
@@ -106,10 +101,9 @@ function ProductDetails() {
       <div className="max-w-6xl mx-auto w-full">
         <div className="bg-white border border-emerald-100 p-8 md:p-10 rounded-3xl shadow-xl grid grid-cols-1 md:grid-cols-2 gap-12 items-start relative overflow-hidden">
           
-          {/* Top Accent Gradient Bar */}
           <div className="absolute top-0 left-0 right-0 h-2 bg-gradient-to-r from-amber-500 via-emerald-500 to-emerald-700"></div>
 
-          {/* LEFT SIDE: Images Gallery with Smooth Switching */}
+          {/* LEFT SIDE: Images Gallery */}
           <div className="space-y-4">
             <div className="h-96 w-full flex items-center justify-center overflow-hidden rounded-2xl bg-gradient-to-b from-emerald-50/50 to-amber-50/30 p-6 border border-emerald-100 shadow-inner group relative">
               
@@ -144,7 +138,7 @@ function ProductDetails() {
             </div>
           </div>
 
-          {/* RIGHT SIDE: Product Info & Packing Selector */}
+          {/* RIGHT SIDE: Product Info & Actions */}
           <div className="flex flex-col h-full justify-between space-y-6">
             <div>
               <span className="bg-emerald-100 text-emerald-800 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider border border-emerald-200">
@@ -155,7 +149,6 @@ function ProductDetails() {
                 {product.desc || "Premium agricultural produce cultivated and packaged for global export standards."}
               </p>
               
-              {/* Quality Grade */}
               <div className="mb-4 bg-gradient-to-br from-emerald-50/60 to-gray-50 p-4 rounded-2xl border border-emerald-100 shadow-sm flex justify-between items-center">
                 <div>
                   <span className="block text-gray-400 text-xs uppercase font-semibold">{t('gradeLabel', 'Quality Grade')}</span>
@@ -163,7 +156,6 @@ function ProductDetails() {
                 </div>
               </div>
 
-              {/* Packing Weight Selector Dropdown */}
               <div className="mb-6">
                 <label className="block text-xs font-bold text-gray-700 mb-2 uppercase tracking-wider">
                   Select Packing Weight / Type *
@@ -182,7 +174,6 @@ function ProductDetails() {
               </div>
             </div>
 
-            {/* Out of Season Warning Notification */}
             {isOutOfSeason && (
               <div className="p-4 bg-red-50 border border-red-200 rounded-2xl text-red-700 text-xs font-semibold flex items-center gap-2">
                 <span>⚠️</span>
@@ -190,32 +181,35 @@ function ProductDetails() {
               </div>
             )}
 
-            {/* Action Buttons */}
-            <div className="space-y-3.5 pt-2 border-t border-gray-100">
+            {/* Action Buttons: Direct Order on top, Quote on bottom with proper spacing */}
+            <div className="space-y-4 pt-2 border-t border-gray-100">
               {isOutOfSeason ? (
                 <div className="w-full bg-gray-200 text-gray-500 font-bold py-3.5 rounded-xl text-center text-base cursor-not-allowed">
                   Currently Unavailable (Out of Season)
                 </div>
               ) : (
-                <>
+                <div className="flex flex-col gap-4">
                   <button
-                    onClick={handleRequestQuote}
-                    className="w-full bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-emerald-950 font-bold py-3.5 rounded-xl transition shadow-md hover:shadow-amber-500/30 hover:shadow-lg text-center text-base cursor-pointer"
-                  >
-                    Request Official Quote 📋
-                  </button>
-                  <button
+                    type="button"
                     onClick={handleDirectOrder}
                     className="w-full bg-gradient-to-r from-emerald-700 to-emerald-900 hover:from-emerald-800 hover:to-emerald-950 text-white font-bold py-3.5 rounded-xl transition shadow-md hover:shadow-emerald-900/30 hover:shadow-lg text-center text-base cursor-pointer"
                   >
                     Place Direct Order 🚀
                   </button>
-                </>
+                  
+                  <button
+                    type="button"
+                    onClick={handleRequestQuote}
+                    className="w-full bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-emerald-950 font-bold py-3.5 rounded-xl transition shadow-md hover:shadow-amber-500/30 hover:shadow-lg text-center text-base cursor-pointer"
+                  >
+                    Request Official Quote 📋
+                  </button>
+                </div>
               )}
               
-              <Link
+              <Link 
                 to="/products"
-                className="block w-full bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-3 rounded-xl transition text-center text-sm shadow-sm"
+                className="block w-full bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-3 rounded-xl transition text-center text-sm shadow-sm mt-2"
               >
                 ← Back to Catalog
               </Link>

@@ -38,7 +38,11 @@ function Home() {
             {t('subtitle', 'Farm-Fresh Fruits & Vegetables - Delivered Globally with Advanced Cold-Chain Logistics')}
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link to="/products" className="bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-emerald-950 px-8 py-3.5 rounded-xl font-bold transition-all shadow-lg hover:shadow-amber-500/30 text-base">
+            {/* View Products Button with Jumping / Bounce Animation */}
+            <Link 
+              to="/products" 
+              className="bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-emerald-950 px-8 py-3.5 rounded-xl font-bold transition-all shadow-lg hover:shadow-amber-500/50 text-base animate-bounce"
+            >
               {t('viewProducts', 'View Products')} 🚀
             </Link>
             
@@ -46,6 +50,15 @@ function Home() {
               {t('contactUs', 'Contact Us')} 📞
             </Link>
           </div>
+        </div>
+
+        {/* Animated Scroll Down Indicator Arrow */}
+       {/* Animated Scroll Down Indicator Arrow - Perfect Centered */}
+        <div className="absolute bottom-2 left-0 right-0 z-20 flex flex-col items-center justify-center animate-bounce cursor-pointer opacity-90 hover:opacity-100 transition mx-auto w-fit">
+          <span className="text-[9px] sm:text-[10px] tracking-widest uppercase font-semibold text-emerald-200 mb-0.5 drop-shadow text-center">Scroll Down</span>
+          <svg className="w-4 h-4 sm:w-5 sm:h-5 text-amber-400 drop-shadow-md mx-auto" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path>
+          </svg>
         </div>
       </section>
       
