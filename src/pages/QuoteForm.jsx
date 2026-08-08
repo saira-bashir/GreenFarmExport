@@ -22,12 +22,24 @@ function QuoteForm() {
     countryCode: '+92',
     phone: '',
     quantity: '1', // Default 1 selected
-    destination: '',
+    destination: 'Pakistan',
     packing: '',
     message: ''
   });
 
   const [loading, setLoading] = useState(false);
+
+  // Complete list of Destination Countries
+  const countriesList = [
+    "Pakistan", "Afghanistan", "Albania", "Algeria", "Argentina", "Australia", 
+    "Austria", "Bahrain", "Bangladesh", "Belgium", "Brazil", "Canada", "China", 
+    "Denmark", "Egypt", "France", "Germany", "India", "Indonesia", "Iran", 
+    "Iraq", "Ireland", "Italy", "Japan", "Jordan", "Kuwait", "Malaysia", 
+    "Netherlands", "New Zealand", "Norway", "Oman", "Philippines", "Poland", 
+    "Portugal", "Qatar", "Russia", "Saudi Arabia", "Singapore", "South Africa", 
+    "South Korea", "Spain", "Sweden", "Switzerland", "Syria", "Thailand", 
+    "Turkey", "United Arab Emirates", "United Kingdom", "United States", "Yemen"
+  ];
 
   // Complete World Country Calling Codes list with Flags
   const countryCodes = [
@@ -128,7 +140,7 @@ function QuoteForm() {
         phone: fullPhoneNumber,
         quantity: formattedQuantity,
         destination: formData.destination,
-        message: `Quote Inquiry for ${product.name} (Grade: ${product.grade || 'Standard'}, Packing: ${formData.packing}). Quantity: ${formattedQuantity}. Phone: ${fullPhoneNumber}. Note: ${formData.message || 'None'}`,
+        message: `Quote Inquiry for ${product.name} (Grade: ${product.grade || 'Standard'}, Packing: ${formData.packing}). Quantity: ${formattedQuantity}. Phone: ${fullPhoneNumber}. Destination: ${formData.destination}. Note: ${formData.message || 'None'}`,
         status: 'Pending',
         createdAt: serverTimestamp()
       });
@@ -274,16 +286,21 @@ function QuoteForm() {
                 </select>
               </div>
 
+              {/* Destination Country Select Dropdown with Full List and Default Pakistan */}
               <div>
                 <label className="block mb-2 font-semibold text-gray-700 text-sm">Destination Country *</label>
-                <input 
-                  type="text" 
-                  required 
-                  placeholder="e.g. UAE, UK, Germany"
-                  className="w-full p-3.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-600 focus:bg-white transition text-gray-800"
+                <select
+                  required
+                  className="w-full p-3.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-600 focus:bg-white transition text-gray-800 cursor-pointer font-medium"
                   value={formData.destination}
-                  onChange={(e) => setFormData({...formData, destination: e.target.value})}
-                />
+                  onChange={(e) => setFormData({ ...formData, destination: e.target.value })}
+                >
+                  {countriesList.map((country, idx) => (
+                    <option key={idx} value={country}>
+                      {country}
+                    </option>
+                  ))}
+                </select>
               </div>
             </div>
 

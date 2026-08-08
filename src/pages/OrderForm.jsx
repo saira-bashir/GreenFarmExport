@@ -22,13 +22,25 @@ function OrderForm() {
     countryCode: '+92',
     phone: '',
     quantity: '1',
-    destination: '',
+    destination: 'Pakistan',
     shippingAddress: '',
     packing: '',
-    paymentMethod: 'International Card (Stripe)'
+    paymentMethod: 'Cash on Delivery / Warehouse Pickup'
   });
 
   const [loading, setLoading] = useState(false);
+
+  // Complete list of Destination Countries
+  const countriesList = [
+    "Pakistan", "Afghanistan", "Albania", "Algeria", "Argentina", "Australia", 
+    "Austria", "Bahrain", "Bangladesh", "Belgium", "Brazil", "Canada", "China", 
+    "Denmark", "Egypt", "France", "Germany", "India", "Indonesia", "Iran", 
+    "Iraq", "Ireland", "Italy", "Japan", "Jordan", "Kuwait", "Malaysia", 
+    "Netherlands", "New Zealand", "Norway", "Oman", "Philippines", "Poland", 
+    "Portugal", "Qatar", "Russia", "Saudi Arabia", "Singapore", "South Africa", 
+    "South Korea", "Spain", "Sweden", "Switzerland", "Syria", "Thailand", 
+    "Turkey", "United Arab Emirates", "United Kingdom", "United States", "Yemen"
+  ];
 
   // Country Calling Codes list with Flags
   const countryCodes = [
@@ -138,11 +150,8 @@ function OrderForm() {
         createdAt: serverTimestamp()
       });
 
-      // Real Payment Gateway Handler
       if (formData.paymentMethod.includes('International Card')) {
-        // Stripe Checkout Integration Trigger (Mock/Redirect logic or actual Stripe SDK)
         alert(`Redirecting to Secure International Payment Gateway (Stripe) for ${product.name}...`);
-        // window.location.href = "https://checkout.stripe.com/..."; // Apni Stripe payment link ya backend endpoint yahan lagayein
       } else if (formData.paymentMethod.includes('Local Bank / PayFast')) {
         alert(`Redirecting to Local Pakistani Gateway (PayFast / JazzCash) for secure processing...`);
       } else {
@@ -190,7 +199,7 @@ function OrderForm() {
           {/* Centered Heading */}
           <h2 className="text-3xl md:text-4xl font-extrabold text-emerald-950 mb-4 text-center tracking-tight">Complete Direct Order</h2>
 
-          {/* Smooth Sliding Trust Ticker Row with Soft Gradient Background */}
+          {/* Smooth Sliding Trust Ticker Row */}
           <div className="mb-6 bg-gradient-to-r from-emerald-900 via-teal-900 to-emerald-950 text-amber-200 py-2.5 overflow-hidden whitespace-nowrap rounded-xl border border-emerald-700/60 shadow-sm">
             <div className="inline-flex animate-marquee space-x-12 font-bold text-xs tracking-wider uppercase">
               <span className="flex items-center gap-1.5">⚡ Fast Dispatch: Within 24 Hours</span>
@@ -268,8 +277,8 @@ function OrderForm() {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-             {/* Dynamic Quantity Dropdown based on Selected Packing */}
-              <div>
+               {/* Dynamic Quantity Dropdown */}
+               <div>
                 <label className="block mb-2 font-semibold text-gray-700 text-sm">
                   Order Quantity ({formData.packing || 'Units'}) *
                 </label>
@@ -287,16 +296,21 @@ function OrderForm() {
                 </select>
               </div>
 
+              {/* Destination Country Select Dropdown with Full List */}
               <div>
                 <label className="block mb-2 font-semibold text-gray-700 text-sm">Destination Country *</label>
-                <input
-                  type="text"
+                <select
                   required
-                  placeholder="e.g. Canada, Germany, Pakistan"
-                  className="w-full p-3.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-600 focus:bg-white transition text-gray-800"
+                  className="w-full p-3.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-600 focus:bg-white transition text-gray-800 cursor-pointer font-medium"
                   value={formData.destination}
                   onChange={(e) => setFormData({ ...formData, destination: e.target.value })}
-                />
+                >
+                  {countriesList.map((country, idx) => (
+                    <option key={idx} value={country}>
+                      {country}
+                    </option>
+                  ))}
+                </select>
               </div>
             </div>
 
@@ -319,14 +333,14 @@ function OrderForm() {
                 value={formData.paymentMethod}
                 onChange={(e) => setFormData({ ...formData, paymentMethod: e.target.value })}
               >
+                <optgroup label="🇵🇰 Local Pakistani Gateways">
+                  <option value="Cash on Delivery / Warehouse Pickup">📦 Cash on Delivery / Warehouse Pickup</option>
+                  <option value="Local Bank / PayFast (JazzCash / EasyPaisa / Cards)">🇵🇰 Local Bank / PayFast (JazzCash / EasyPaisa / Cards)</option>
+                  <option value="Direct Bank Transfer (T.T)">🏦 Direct Bank Transfer / T.T</option>
+                </optgroup>
                 <optgroup label="🌐 International Secure Gateways">
                   <option value="International Card (Stripe - Visa/Mastercard/ApplePay)">💳 International Card (Stripe - Visa / Mastercard)</option>
                   <option value="PayPal Secure Checkout">🅿️ PayPal Secure Checkout</option>
-                </optgroup>
-                <optgroup label="🇵🇰 Local Pakistani Gateways">
-                  <option value="Local Bank / PayFast (JazzCash / EasyPaisa / Cards)">🇵🇰 Local Bank / PayFast (JazzCash / EasyPaisa / Cards)</option>
-                  <option value="Direct Bank Transfer (T.T)">🏦 Direct Bank Transfer / T.T</option>
-                  <option value="Cash on Delivery / Warehouse Pickup">📦 Cash on Delivery / Warehouse Pickup</option>
                 </optgroup>
               </select>
             </div>
@@ -355,7 +369,7 @@ function OrderForm() {
                 disabled={loading}
                 className="w-2/3 bg-gradient-to-r from-emerald-700 to-emerald-900 hover:from-emerald-800 hover:to-emerald-950 text-white font-bold py-3.5 rounded-xl transition shadow-lg hover:shadow-emerald-900/30 cursor-pointer disabled:opacity-50"
               >
-                {loading ? 'Processing...' : 'Proceed to Secure Payment 🔒'}
+                {loading ? 'Processing...' : 'Place Direct Order 🚀'}
               </button>
             </div>
           </form>
